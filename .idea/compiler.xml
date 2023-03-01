@@ -2,23 +2,42 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="commande-service" />
         <module name="gateway-service" />
+        <module name="emlacement-service" />
+        <module name="demandeachat-service" />
+        <module name="user-service" />
+        <module name="appeloffre-service" />
+        <module name="livraision-service" />
         <module name="discovery-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="appeloffre-service" target="11" />
+      <module name="commande-service" target="11" />
+      <module name="demandeachat-service" target="11" />
       <module name="discovery-service" target="11" />
+      <module name="emlacement-service" target="11" />
       <module name="gateway-service" target="11" />
+      <module name="livraision-service" target="11" />
+      <module name="user-service" target="11" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="appeloffre-service" options="-parameters" />
+      <module name="commande-service" options="-parameters" />
+      <module name="demandeachat-service" options="-parameters" />
       <module name="discovery-service" options="-parameters" />
+      <module name="emlacement-service" options="-parameters" />
       <module name="gateway-service" options="-parameters" />
+      <module name="livraision-service" options="-parameters" />
+      <module name="user-service" options="-parameters" />
     </option>
   </component>
 </project>
