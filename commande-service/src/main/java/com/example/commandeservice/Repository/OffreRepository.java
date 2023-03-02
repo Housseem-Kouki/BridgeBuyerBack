@@ -1,0 +1,7 @@
+package com.example.commandeservice.Repository;
+
+import com.example.commandeservice.Entities.Offre;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface OffreRepository extends JpaRepository<Offre, Integer> {
+}
