@@ -15,4 +15,7 @@ public interface IUserService {
 
     public User affecterUserRole(int idUser , int idRole);
     public User laodUserByUserName(String email);
+
+
+    User addUserWithRoleAndAffectPrivileges(User user);
 }

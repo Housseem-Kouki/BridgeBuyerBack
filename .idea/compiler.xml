@@ -25,6 +25,7 @@
       <module name="emlacement-service" target="11" />
       <module name="gateway-service" target="11" />
       <module name="livraision-service" target="11" />
+      <module name="testAuth-service" target="11" />
       <module name="user-service" target="11" />
     </bytecodeTargetLevel>
   </component>
@@ -37,6 +38,7 @@
       <module name="emlacement-service" options="-parameters" />
       <module name="gateway-service" options="-parameters" />
       <module name="livraision-service" options="-parameters" />
+      <module name="testAuth-service" options="-parameters" />
       <module name="user-service" options="-parameters" />
     </option>
   </component>
