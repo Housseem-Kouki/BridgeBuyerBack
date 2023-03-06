@@ -9,7 +9,6 @@
     </JAVADOC>
     <SOURCES>
       <root url="jar://$MAVEN_REPOSITORY$/com/sun/mail/jakarta.mail/1.6.7/jakarta.mail-1.6.7-sources.jar!/" />
-
     </SOURCES>
   </library>
 </component>
