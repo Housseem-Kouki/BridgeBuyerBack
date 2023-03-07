@@ -23,7 +23,7 @@ public class Article implements Serializable {
     private String descriptionarticle ;
     private float prixestime ;
     private int quantite ;
-
+    private float prixestimeAvecRemise  ;
 
 
     @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)

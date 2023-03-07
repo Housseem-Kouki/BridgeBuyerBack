@@ -1,27 +1,34 @@
 package com.example.appeloffreservice.Services.AppelOffre;
 
 import com.example.appeloffreservice.Entities.AppelOffre;
+import com.example.appeloffreservice.Entities.Article;
 import com.example.appeloffreservice.Entities.DevisFourniseur;
 import com.example.appeloffreservice.Entities.User;
-import com.example.appeloffreservice.Repository.AppelOffreRepository;
-import com.example.appeloffreservice.Repository.DemandeAchatRepository;
-import com.example.appeloffreservice.Repository.DevisFourniseurRepository;
-import com.example.appeloffreservice.Repository.UserRepository;
+import com.example.appeloffreservice.Repository.*;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
 @Service
 @AllArgsConstructor
 public class DevicFournisseurServiceImp implements IDevisFournisseurService
 {
+    UserRepository userRepository;
     DevisFourniseurRepository devisFourniseurRepository;
     AppelOffreRepository appelOffreRepository;
-    UserRepository userRepository;
+//     UserRepository userRepository;
+
     private final DemandeAchatRepository demandeAchatRepository;
+    private final DepartementRepository departementRepository;
+    private final DeviseRepository deviseRepository;
+    private final ArticleRepository articleRepository;
 
     @Override
     public DevisFourniseur addDevisFourniseur(DevisFourniseur devisFourniseur) {
+     // Set<Article> ls=  devisFourniseur.getAppelOffre().getDemandeAchat().getArticles();
         return devisFourniseurRepository.save(devisFourniseur);
     }
 
@@ -56,24 +63,82 @@ public class DevicFournisseurServiceImp implements IDevisFournisseurService
        DevisFourniseur df2=df.get(1);
             if ((df1.getPtotal()<df2.getPtotal()) && (df1.getDelaiLivraison()<df2.getDelaiLivraison()) && (df1.isDisopnible() ) && (df1.getEtat()==1)){
                 return df1;
-            }else {
+            } if ((df1.getPtotal()<df2.getPtotal())  && (df1.isDisopnible() && (df1.getEtat()==1))){
+            return df1;
+        }
+        if ((df1.getDelaiLivraison()<df2.getDelaiLivraison()&& (df1.isDisopnible() ) && (df1.getEtat()==1))){
+            return df2;
+        }
+        if ((df1.getPtotal()<df2.getPtotal()) && (df1.isDisopnible() ) && (df1.getEtat()==1)){
+            return df2;
+        }
+            else {
                 return null;
             }
-
-
     }
 
     @Override
-    public double calculremise(int id1) {
-        List<DevisFourniseur> devis=devisFourniseurRepository.findDevisFourniseursByIdDevisFourniseur(id1);
+    public DevisFourniseur comparerListDevis(DevisFourniseur devisFourniseur) {
 
-        DevisFourniseur devisFourniseur=devisFourniseurRepository.findById(id1).orElse(null);
-        DevisFourniseur devis1=devis.get(0);
-        double Ptotal = devis1.getPrixInitiale() - (devis1.getPourcentageRemise() * devis1.getPrixInitiale() / 100);
-        devisFourniseur.setPtotal(Ptotal);
-        devisFourniseurRepository.save(devisFourniseur);
-        return Ptotal;
+        /*DevisFourniseur devisFourniseur=devisFourniseurRepository.findAll();
+        for (DevisFourniseur devisFourniseur1 : devisFourniseur)
+        { if (devisFourniseur1.getPtotal()<devisFourniseur1.getPtotal() && devisFourniseur1.isDisopnible()){
+
+        }
+
+        }*/
+        return null;
     }
+
+    @Override
+    public float calculremise(int id1 ,int idA, float pourcentageRemise) {
+        float Ptotal = 0;
+        DevisFourniseur devisFourniseur=devisFourniseurRepository.findById(id1).orElse(null);
+        for (Article article : devisFourniseur.getAppelOffre().getDemandeAchat().getArticles() ){
+            if(article.getIdarticle() == idA){
+                Ptotal =   article.getPrixestime() - (pourcentageRemise * article.getPrixestime() / 100);
+            article.setPrixestimeAvecRemise(Ptotal);
+            articleRepository.save(article);
+            }
+        }
+         devisFourniseurRepository.save(devisFourniseur);
+         return Ptotal;
+
+
+    }
+
+
+    //  devisFourniseur.getAppelOffre().getDemandeAchat().getArticles();
+    // Article article=articleRepository.findById(idA).orElse(null);
+    // DevisFourniseur devis1=devis.get(0);
+    //  List<Article> articles = new ArrayList<Article>();
+    //   for(Article a:articles) {
+    //       double Ptotal = article.getPrixestime() - (pourcentageRemise * article.getPrixestime() / 100);
+
+    // devisFourniseur.setPtotal(Ptotal);
+
+
+    @Override
+    public List<DevisFourniseur> getDevisFournisseur(int idFournisseur) {
+       /* User user=userRepository.findById(idFournisseur).orElse(null);
+        List <DevisFourniseur> devisFourniseurs=devisFourniseurRepository.findById(idFournisseur).orElse(null);
+        devisFourniseurs.getFourniseur();*/
+
+        return devisFourniseurRepository.findDevisFourniseursByFourniseur(userRepository.findById(idFournisseur).orElse(null)) ;
+    }
+
+    @Override
+    public DevisFourniseur updateTotalDevis(int idDevis) {
+        double totalDevis = 0;
+        DevisFourniseur devisFourniseur= devisFourniseurRepository.findById(idDevis).orElse(null);
+        for (Article article : devisFourniseur.getAppelOffre().getDemandeAchat().getArticles()){
+            totalDevis+= article.getPrixestimeAvecRemise();
+        }
+        devisFourniseur.setPtotal(totalDevis);
+        return devisFourniseurRepository.save(devisFourniseur);
+    }
+
+
 
     @Override
     public void assignAppeloffreAndUserToDevis( int idAppeloffre ,int idDevis, int idUser) {
@@ -82,7 +147,9 @@ public class DevicFournisseurServiceImp implements IDevisFournisseurService
         User user=userRepository.findById(idUser).orElse(null);
         devisFourniseur.setFourniseur(user);
         devisFourniseur.setAppelOffre(appelOffre);
-        devisFourniseur.setPrixInitiale(appelOffre.getPrixInitiale());
+        devisFourniseur.setPrixInitiale(appelOffre.getPrixInitiale(
+
+        ));
         devisFourniseurRepository.save(devisFourniseur);
     }
 

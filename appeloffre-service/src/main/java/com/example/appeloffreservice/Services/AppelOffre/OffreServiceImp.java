@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @AllArgsConstructor
 public class OffreServiceImp implements IOffreService{
@@ -56,6 +58,13 @@ public class OffreServiceImp implements IOffreService{
         appelOffre.setEtat(1);// appeloffre en cours
         appelOffreRepository.save(appelOffre);
     }
-
+    @Override
+    public List<Offre> findByCriteria(String commentaire, double prixOffre) {
+        return offreRepository.findAll()
+                .stream()
+                .filter(offre -> commentaire == null || offre.getCommentaire().contains(commentaire))
+                .filter(offre -> prixOffre ==0 || offre.getPrixOffre()==prixOffre)
+                .collect(Collectors.toList());
+    }
 
 }

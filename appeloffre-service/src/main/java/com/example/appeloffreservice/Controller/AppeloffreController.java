@@ -5,13 +5,22 @@ import com.example.appeloffreservice.Entities.AppelOffre;
 import com.example.appeloffreservice.Entities.DevisFourniseur;
 import com.example.appeloffreservice.Entities.Offre;
 import com.example.appeloffreservice.Repository.AppelOffreRepository;
+import com.example.appeloffreservice.Repository.DemandeAchatRepository;
+import com.example.appeloffreservice.Repository.DevisFourniseurRepository;
 import com.example.appeloffreservice.Services.AppelOffre.IAppeloffreService;
 import com.example.appeloffreservice.Services.AppelOffre.IDevisFournisseurService;
 import com.example.appeloffreservice.Services.AppelOffre.IOffreService;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -21,7 +30,10 @@ public class AppeloffreController {
     IAppeloffreService iAppeloffreService;
     IDevisFournisseurService iDevisFournisseurService;
     IOffreService iOffreService;
-    private final AppelOffreRepository appelOffreRepository;
+ AppelOffreRepository appelOffreRepository;
+   DemandeAchatRepository demandeAchatRepository;
+   DevisFourniseurRepository devisFourniseurRepository;
+
     @GetMapping("/hello")
     public String hello (){
         return"hiiiiiiiiiii" ;
@@ -83,6 +95,33 @@ public class AppeloffreController {
     }
 
 
+
+    @GetMapping("/searchA")
+    public ResponseEntity<List<AppelOffre>> searchA(@RequestParam(required = false) String reference,
+                                                   @RequestParam(required = false) String commentaire,
+                                                   @RequestParam(required = false) double prixInitiale) {
+        List<AppelOffre> appelOffres = iAppeloffreService.findByCriteria(reference, commentaire, prixInitiale);
+        return ResponseEntity.ok(appelOffres);
+    }
+    @Autowired
+    public  AppeloffreController (IAppeloffreService iAppeloffreService) {
+        this.iAppeloffreService = iAppeloffreService;
+    }
+
+
+        @GetMapping("/pdf/generate/{idAppel}")
+        public void generatePdf(HttpServletResponse response ,@PathVariable("idAppel") int idAppel) throws IOException {
+
+        response.setContentType("application/pdf");
+            DateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd:hh:mm:ss");
+            String currentDate= dateFormat.format(new Date());
+            String headerkey="Content-Disposition";
+            String headerValue="attachement; filename=pdf_"+ currentDate + ".pdf";
+            response.setHeader(headerkey, headerValue);
+            this.iAppeloffreService.export(response,idAppel);
+        }
+
+
     /////////////////////////
     @GetMapping("/AllDevisFourniseur")
     @ResponseBody
@@ -128,9 +167,28 @@ public class AppeloffreController {
     public DevisFourniseur comparerDevis(@PathVariable("id1") int id1, @PathVariable("id2") int id2) {
         return iDevisFournisseurService.comparerDevis(id1, id2);
     }
-    @GetMapping("/calculremise/{id1}")
+   /* @GetMapping("/calculremise/{id1}")
     public double calculremise(@PathVariable("id1") int id1) {
         return iDevisFournisseurService.calculremise(id1);
+    }*/
+
+ /*   @GetMapping("comparerListDevis")
+    public DevisFourniseur comparerListDevis(@RequestBody) {
+        return iDevisFournisseurService.comparerListDevis(id1, id2);
+    }*/
+      @GetMapping("/calculremise/{id1}/{idA}/{pourcentageRemise}")
+    public float calculremise(@PathVariable("id1") int id1 ,@PathVariable("idA") int idA ,@PathVariable("pourcentageRemise") float pourcentageRemise ) {
+       return  iDevisFournisseurService.calculremise(id1,idA ,pourcentageRemise);
+    }
+
+    @GetMapping("/getDevisFournisseur/{idFourniseur}")
+    public List<DevisFourniseur> getDevisFournisseur(@PathVariable("idFourniseur") int idFournisseur) {
+        return iDevisFournisseurService.getDevisFournisseur(idFournisseur);
+    }
+
+    @GetMapping("/updateTotalDevis/{idDevis}")
+    public DevisFourniseur updateTotalDevis(@PathVariable("idDevis") int idDevis){
+          return iDevisFournisseurService.updateTotalDevis(idDevis);
     }
 
     ////////////////
@@ -164,6 +222,13 @@ public class AppeloffreController {
     {
         return iOffreService.updateOffre(offre);
 
+    }
+
+    @GetMapping("/recherche")
+    public ResponseEntity<List<Offre>> recherche(@RequestParam(required = false) String commentaire,
+                                                    @RequestParam(required = false) double prixOffre) {
+        List<Offre> offres = iOffreService.findByCriteria( commentaire, prixOffre);
+        return ResponseEntity.ok(offres);
     }
     @GetMapping("/getOffreByEtat/{etat}")
     @ResponseBody
