@@ -7,8 +7,11 @@ import com.example.demandeachatservice.Repository.ReactCommentRepository;
 import com.example.demandeachatservice.Repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -21,10 +24,10 @@ public class CommentService implements ICommentService{
     ReactCommentRepository reactCommentRepository ;
 
     @Override
-    public void AddAffectCommentList(Comment comment, int idArticle, int idUser) {
+    public void AddAffectCommentList(Comment comment, int idArticle) throws IOException {
         Article article =  articleRepository.findById(idArticle).orElse(null);
-        User user =  userRepository.findById(idUser).orElse(null);
-
+        User user =  userRepository.findById(2).orElse(null);
+        comment.setContent(BadWord.filterBadWords(comment.getContent()));
 
         comment.setArticle(article);
         comment.setUser(user);
@@ -33,9 +36,9 @@ public class CommentService implements ICommentService{
     }
 
     @Override
-    public Comment updateComment(Comment comment, int idArticle, int idUser) {
+    public Comment updateComment(Comment comment, int idArticle) {
         Article article =  articleRepository.findById(idArticle).orElse(null);
-        User user =  userRepository.findById(idUser).orElse(null);
+        User user =  userRepository.findById(2).orElse(null);
 
 
         comment.setArticle(article);
@@ -64,15 +67,6 @@ public class CommentService implements ICommentService{
         Article article =  articleRepository.findById(idArticle).orElse(null);
         return articleRepository.getAllCommentsByArticle(article);
 
-
-    }
-
-    @Override
-    public ReactComment save(int idComment, ReactComment reactComment ) {
-        Comment comment = commentRepository.findById(idComment).orElse(null) ;
-
-        reactComment.setComments(comment);
-        return  reactCommentRepository.save(reactComment);
     }
 
     @Override
@@ -95,6 +89,28 @@ public class CommentService implements ICommentService{
         }
 
         return  nb ;
+    }
+    @Override
+    public ResponseEntity<ReactComment> save(int idComment, ReactComment reactComment ) {
+        String test="" ;
+        Comment comment = commentRepository.findById(idComment).orElse(null) ;
+        User user =userRepository.findById(2).orElse(null);//session
+        ReactComment existingReactComment = reactCommentRepository.findByUserAndComments(user,comment);
+        if (existingReactComment != null && !reactComment.getReact().equals(existingReactComment.getReact())) {
+            existingReactComment.setReact(reactComment.getReact());
+            reactCommentRepository.save(existingReactComment);
+            return ResponseEntity.ok(reactComment);
+
+        } else if (existingReactComment != null && reactComment.getReact().equals(existingReactComment.getReact())){
+            reactCommentRepository.deleteById(existingReactComment.getIdReact());
+            return  ResponseEntity.ok().build();
+        } else {
+            reactComment.setUser(user);
+            reactComment.setComments(comment);
+            reactCommentRepository.save(reactComment);
+            return ResponseEntity.ok(reactComment);
+
+        }
     }
 
 }

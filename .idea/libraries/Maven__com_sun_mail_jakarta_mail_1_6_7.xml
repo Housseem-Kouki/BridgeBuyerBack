@@ -2,6 +2,14 @@
   <library name="Maven: com.sun.mail:jakarta.mail:1.6.7">
     <CLASSES>
 
+      <root url="jar://$PROJECT_DIR$/../../../sun/mail/jakarta.mail/1.6.7/jakarta.mail-1.6.7.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/../../../sun/mail/jakarta.mail/1.6.7/jakarta.mail-1.6.7-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../../../sun/mail/jakarta.mail/1.6.7/jakarta.mail-1.6.7-sources.jar!/" />
+
       <root url="jar://$MAVEN_REPOSITORY$/com/sun/mail/jakarta.mail/1.6.7/jakarta.mail-1.6.7.jar!/" />
     </CLASSES>
     <JAVADOC>
@@ -9,7 +17,6 @@
     </JAVADOC>
     <SOURCES>
       <root url="jar://$MAVEN_REPOSITORY$/com/sun/mail/jakarta.mail/1.6.7/jakarta.mail-1.6.7-sources.jar!/" />
-
     </SOURCES>
   </library>
 </component>
