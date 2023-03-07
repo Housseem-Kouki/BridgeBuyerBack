@@ -2,6 +2,7 @@ package com.example.demandeachatservice.Services.DemandeAchat.Article;
 
 
 import com.example.demandeachatservice.Entities.Article;
+import com.example.demandeachatservice.Repository.ArticleRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
@@ -14,49 +15,44 @@ import java.util.List;
 
 @Service
 public class ExportArticleExcel {
-    public ByteArrayInputStream articleExcelFile(List<Article> articles) {
-        String[] columns = {"Idarticle", "Nomarticle" , "Descriptionarticle","Prixestime"};
-        try (Workbook workbook = new XSSFWorkbook();
-             ByteArrayOutputStream out = new ByteArrayOutputStream();) {
-            CreationHelper creationHelper = workbook.getCreationHelper();
-            Sheet sheet = workbook.createSheet("articles");
-            sheet.autoSizeColumn(columns.length);
-            Font headerFont = workbook.createFont();
-            headerFont.setBold(true);
-            headerFont.setColor(IndexedColors.BLUE.getIndex());
+    private final ArticleRepository articleRepository;
 
-            CellStyle cellStyle = workbook.createCellStyle();
-            cellStyle.setFont(headerFont);
-
-            ////Row for header
-            Row headerRow = sheet.createRow(0);
-
-            /////// header
-            for (int col = 0; col < columns.length; col++) {
-                Cell cell = headerRow.createCell(col);
-                cell.setCellValue(columns[col]);
-                cell.setCellStyle(cellStyle);
-            }
-            CellStyle cellStyle1 = workbook.createCellStyle();
-            cellStyle1.setDataFormat(creationHelper.createDataFormat().getFormat("#"));
-
-            int rowIndex = 1;
-            for (Article article : articles) {
-                Row row = sheet.createRow(rowIndex++);
-                row.createCell(0).setCellValue(article.getIdarticle());
-                row.createCell(1).setCellValue(article.getNomarticle());
-                row.createCell(2).setCellValue(article.getDescriptionarticle());
-                row.createCell(3).setCellValue(article.getPrixestime());
-
-
-            }
-            workbook.write(out);
-
-            return new ByteArrayInputStream(out.toByteArray());
-
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public ExportArticleExcel(ArticleRepository articleRepository) {
+        this.articleRepository = articleRepository;
     }
+
+    public ByteArrayInputStream exportArticles() throws IOException {
+        String[] columns = {"Id", "Nom", "Description", "Prix", "Quantité"};
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Articles");
+
+        // Header row
+        Row headerRow = sheet.createRow(0);
+        for (int i = 0; i < columns.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(columns[i]);
+        }
+
+        // Data rows
+        List<Article> articles = articleRepository.findAll();
+        int rowNum = 1;
+        for (Article article : articles) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(article.getIdarticle());
+            row.createCell(1).setCellValue(article.getNomarticle());
+            row.createCell(2).setCellValue(article.getDescriptionarticle());
+            row.createCell(3).setCellValue(article.getPrixestime());
+            row.createCell(4).setCellValue(article.getQuantite());
+        }
+
+        // Write to stream
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        workbook.write(out);
+        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+        out.close();
+
+        return in;
+    }
+
 }

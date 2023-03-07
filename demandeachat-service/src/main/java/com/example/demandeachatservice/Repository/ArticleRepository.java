@@ -17,4 +17,9 @@ public interface ArticleRepository extends JpaRepository<Article, Integer> {
 
     List<Article> rech(String keyword);
     List<Article> findArticleByPrixestime(@Param("prixestime") float prixestime) ;
+
+
+    List<Article> findAllByNomarticleAndDescriptionarticleAndPrixestime(String nomarticle, String descriptionarticle, Float prixestime);
+
+
 }
