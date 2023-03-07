@@ -4,9 +4,11 @@ import com.example.userservice.Entities.User;
 import com.example.userservice.Entities.VerificationToken;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 
 
@@ -53,9 +55,35 @@ public class EmailUserService {
             */
 
         }
+
     }
 
 
+    public void resetPasswordMail(User user) throws MessagingException{
+        VerificationToken verificationToken = verificationTokenService.findByUser(user);
+        if (verificationToken != null){
+            String token = verificationToken.getToken();
+
+        String subject = "Request for reset password";
+        String senderName = "Bridge Buyer";
+
+        String mailContent = "<p> Someone has requested to reset your password with our project .If it were not you , please ignore it otherwise please click on the link below : </p>";
+        String verifyURL = "http://localhost:9999/USER-SERVICE/password-reset?token=" + token;
+
+        mailContent += "<h2><a href=" + verifyURL + ">Click this link to reset password</a></h2>";
+
+        mailContent += "<p> thank you<br> the Bridge Buyer App Team</p>";
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message);
+
+            helper.setFrom("kuokihoussem@gmail.com");
+            helper.setTo(user.getEmail());
+            helper.setSubject(subject);
+            helper.setText(mailContent, true);
+
+            javaMailSender.send(message);
+        }
+    }
 
 
 
