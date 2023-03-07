@@ -3,8 +3,7 @@ package com.example.demandeachatservice.Controller;
 
 import com.example.demandeachatservice.Entities.*;
 import com.example.demandeachatservice.Repository.CommentRepository;
-import com.example.demandeachatservice.Repository.DemandeAchatRepository;
-import com.example.demandeachatservice.Repository.ReactCommentRepository;
+import com.example.demandeachatservice.Services.DemandeAchat.Article.ArticlePdfExporter;
 import com.example.demandeachatservice.Services.DemandeAchat.Article.ExportArticleExcel;
 import com.example.demandeachatservice.Services.DemandeAchat.Article.IArticleService;
 import com.example.demandeachatservice.Services.DemandeAchat.Comment.ICommentService;
@@ -14,9 +13,16 @@ import com.example.demandeachatservice.Services.DemandeAchat.ISendEmailService;
 import com.example.demandeachatservice.Services.DemandeAchat.NatureArticle.INatureArticleService;
 import com.example.demandeachatservice.Services.DemandeAchat.Unite.IUniteService;
 import lombok.AllArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 
 
@@ -29,11 +35,12 @@ public class DemandeAchatController {
     INatureArticleService iNatureArticleService ;
     IUniteService iUniteService ;
     ICommentService iCommentService;
-    
+
     ExportArticleExcel ExportArticleExcel ;
     DemandeAchatService demandeAchatService ;
     ISendEmailService iSendEmailService ;
     private final CommentRepository commentRepository;
+    ArticlePdfExporter articlePdfExporter;
 
 
     //////////////////////////////////////////
@@ -46,7 +53,18 @@ public class DemandeAchatController {
        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(bais)) ;
 
     }*/
+    @GetMapping(value = "/articles/pdfreport", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<InputStreamResource> articlePDFReport() throws Exception {
+        ByteArrayInputStream bis = articlePdfExporter.generatePDFReport();
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename=articlesreport.pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(bis));
+    }
     /////////////////////////////////////////
     @GetMapping ("/AllDemandeAchat")
     @ResponseBody
@@ -154,6 +172,8 @@ public class DemandeAchatController {
 
         return iNatureArticleService.addAndAssignNatureArticleToArticle(nature, idArticle);
     }
+
+
     //////////////////////////////////////////////////////////////////
     @GetMapping ("/AllArticle")
     @ResponseBody
@@ -200,6 +220,8 @@ public class DemandeAchatController {
     {
         return iArticleService.SearchMultiple(key);
     }
+
+
     //////////////////////////////////////////////////////////////////
     @GetMapping ("/AllUnite")
     @ResponseBody
@@ -242,22 +264,22 @@ public class DemandeAchatController {
 
 
 
-    @PostMapping("/addComment/{idArticle}/{idUser}")
+    @PostMapping("/addComment/{idArticle}")
     @ResponseBody
-    public void AddAffectCommentList(@RequestBody Comment comment, @PathVariable("idArticle") int idArticle, @PathVariable("idUser") int idUser) {
+    public void AddAffectCommentList(@RequestBody Comment comment, @PathVariable("idArticle") int idArticle) throws IOException {
 
 
-           iCommentService.AddAffectCommentList(comment, idArticle, idUser);
+           iCommentService.AddAffectCommentList(comment, idArticle);
 
 
     }
 
-    @PutMapping("/updateComment/{idArticle}/{idUser}")
+    @PutMapping("/updateComment/{idArticle}")
     @ResponseBody
 
-    public Comment updateComment(@RequestBody Comment comment, @PathVariable("idArticle") int idArticle, @PathVariable("idUser") int idUser)
+    public Comment updateComment(@RequestBody Comment comment, @PathVariable("idArticle") int idArticle)
     {
-        return iCommentService.updateComment(comment,idArticle,idUser);
+        return iCommentService.updateComment(comment,idArticle);
 
     }
 
@@ -284,7 +306,8 @@ public class DemandeAchatController {
     }
 
     @PostMapping("/save/{idComment}")
-    public ReactComment save(@PathVariable("idComment") int idComment ,@RequestBody ReactComment reactComment ){
+    public Response save(@PathVariable("idComment") int idComment , @RequestBody ReactComment reactComment ){
+
         return  iCommentService.save(idComment,reactComment) ;
     }
 
@@ -304,5 +327,6 @@ public class DemandeAchatController {
     public Integer countAllByIdComment(@PathVariable("idComment") int idComment){
         return iCommentService.countAllByIdComment(idComment) ;
     }
+
 
 }

@@ -1,5 +1,6 @@
 package com.example.demandeachatservice.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import java.io.Serializable;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+//@Table(uniqueConstraints={@UniqueConstraint(columnNames={"user_id", "comment_id"})})
 public class ReactComment implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,4 +24,7 @@ public class ReactComment implements Serializable {
 
     @ManyToOne
     private Comment comments ;
+    @OneToOne
+    @JsonIgnore
+    private User user ;
 }

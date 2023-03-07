@@ -7,12 +7,15 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +34,7 @@ public class DemandeAchatService implements IDemandeAchatService {
     private final DepartementRepository departementRepository;
     private final UserRepository userRepository;
 
+
     @Override
     @Transactional
 
@@ -43,9 +47,10 @@ User user =userRepository.findById(1).orElse(null) ;
             d.setAcheteur(user);
 
         }
-
         return demandeAchatRepository.save(d);
     }
+
+
 
     private Article saveArticle(DemandeAchat d, int idNature, int idUnite) {
         Set<Article> articles = (Set<Article>) d.getArticles();

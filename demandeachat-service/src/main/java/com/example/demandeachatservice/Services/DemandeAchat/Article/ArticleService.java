@@ -4,10 +4,16 @@ import com.example.demandeachatservice.Entities.Article;
 import com.example.demandeachatservice.Entities.DemandeAchat;
 import com.example.demandeachatservice.Repository.ArticleRepository;
 import com.example.demandeachatservice.Repository.DemandeAchatRepository;
+import com.example.demandeachatservice.Services.DemandeAchat.SmsService;
 import lombok.AllArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -16,8 +22,10 @@ public class ArticleService implements IArticleService {
     ArticleRepository articleRepository ;
     DemandeAchatRepository demandeAchatRepository;
 
+
     @Override
     public Article addArticle(Article a) {
+
 
         return articleRepository.save(a);
     }
@@ -60,4 +68,8 @@ public class ArticleService implements IArticleService {
             return articleRepository.rech(key);
         }
     }
-}
+
+    }
+
+    
+
