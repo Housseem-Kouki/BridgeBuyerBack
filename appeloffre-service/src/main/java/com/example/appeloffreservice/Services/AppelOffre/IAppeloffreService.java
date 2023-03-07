@@ -1,7 +1,10 @@
 package com.example.appeloffreservice.Services.AppelOffre;
 
 import com.example.appeloffreservice.Entities.AppelOffre;
+import com.example.appeloffreservice.Entities.Article;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 public interface IAppeloffreService{
@@ -16,6 +19,9 @@ public interface IAppeloffreService{
 
 
     public List<AppelOffre> Search(String key);
+    public List<AppelOffre> findByCriteria(String reference, String commentaire, double prixInitiale);
+    public void export(HttpServletResponse response , int idAppel) throws IOException ;
 
 
+    //List<AppelOffre> SearchAppeloffre(String nomarticle);
 }

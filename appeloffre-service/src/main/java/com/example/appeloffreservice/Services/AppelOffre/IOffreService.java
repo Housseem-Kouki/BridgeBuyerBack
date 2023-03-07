@@ -1,5 +1,6 @@
 package com.example.appeloffreservice.Services.AppelOffre;
 
+import com.example.appeloffreservice.Entities.AppelOffre;
 import com.example.appeloffreservice.Entities.Offre;
 
 import java.util.List;
@@ -13,5 +14,6 @@ public interface IOffreService {
 
     public List<Offre> getOffreByEtat(int etat);
     public void assignofferToAppelOffre(int idAppeloffre, int idOffer);
+    public List<Offre> findByCriteria(String commentaire, double prixOffre);
 
 }
