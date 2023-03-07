@@ -4,15 +4,23 @@ package com.example.userservice.Services.User;
 import com.example.userservice.Entities.Privilege;
 import com.example.userservice.Entities.Role;
 import com.example.userservice.Entities.User;
+import com.example.userservice.Entities.VerificationToken;
 import com.example.userservice.Repository.PrivilegeRepository;
 import com.example.userservice.Repository.RoleRepository;
 import com.example.userservice.Repository.UserRepository;
+import com.example.userservice.Repository.VerificationTokenRepository;
+import com.example.userservice.Security.JWTUtil;
 import lombok.AllArgsConstructor;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
+import java.sql.Timestamp;
 import java.util.*;
 
 @Service
@@ -22,6 +30,7 @@ public class UserServiceImp implements IUserService {
     UserRepository userRepository;
     RoleRepository roleRepository;
     PrivilegeRepository privilegeRepository;
+    VerificationTokenRepository verificationTokenRepository;
     private PasswordEncoder passwordEncoder;
     private VerificationTokenService verificationTokenService;
    private EmailUserService emailUserService;
@@ -137,7 +146,50 @@ public class UserServiceImp implements IUserService {
         return userRepository.save(u);
     }
 
+    @Override
+    public Response requestPasswordReset(String email) throws Exception {
+        User user = userRepository.findByEmail(email);
 
+        if(user==null) {
+           return Response.status(Response.Status.NOT_FOUND).entity("email n'est pas disponible !").build();
+
+        }
+
+       try {
+           String token = UUID.randomUUID().toString();
+           verificationTokenService.affectUserToken(user , token);
+           emailUserService.resetPasswordMail(user);
+
+       }catch (Exception e){
+           throw new RuntimeException("email invalid");
+       }
+       return Response.status(Response.Status.OK).entity("email de mot de passe oublié a été envoyé ").build();
+    }
+
+
+
+    @Override
+    public Response resetPassword(String token, String NewPassword , String ConfirmPassword) {
+        VerificationToken verificationToken = verificationTokenService.findByToken(token);
+        if (!(NewPassword.equals(ConfirmPassword))){
+            return  Response.status(Response.Status.BAD_REQUEST).entity("Les deux mots de passe ne correspondent pas. Veuillez réessayer. ").build();
+        }
+        Timestamp cuurentTimesTamp = new Timestamp(System.currentTimeMillis());
+        // check if the token is expired
+        if(verificationToken.getExpiryDate().before(cuurentTimesTamp)) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Lien expiré . Veuillez renvoyer votre demande  ").build();
+
+        }
+        if (verificationToken==null){
+            return  Response.status(Response.Status.BAD_REQUEST).entity("Lien erroné . Veuillez verifier le lien de modification   ").build();
+        }
+        User user = userRepository.findById(verificationToken.getUser().getIdUser()).orElse(null);
+        //prepare new password
+        String encodedPassword = passwordEncoder.encode(NewPassword);
+        user.setPassword(encodedPassword);
+        userRepository.save(user);
+        return  Response.status(Response.Status.OK).entity("Mot de passe a été modifier  ").build();
+    }
 
 
 }

@@ -2,11 +2,15 @@ package com.example.userservice.Security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.example.userservice.Model.UserDisabledException;
 import com.example.userservice.Services.User.IUserService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -46,6 +50,22 @@ public class JwtAuthentificationFilter extends UsernamePasswordAuthenticationFil
             // Extraire l'email et le mot de passe de l'objet Java
             String email = rootNode.get("email").asText();
             String password = rootNode.get("password").asText();
+            // Vérifier si l'utilisateur est désactivé
+            com.example.userservice.Entities.User user = userService.laodUserByUserName(email);
+            if (user == null){
+                response.setContentType("application/json");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("{ \"message\": \"" + "Verfier l'email et le mot de passe !" + "\" }");
+                return null;
+            }
+            String errorMessage = "Le compte est encore désactivé";
+            if (!user.isEnabled()) {
+                response.setContentType("application/json");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("{ \"message\": \"" + errorMessage + "\" }");
+                return null;
+
+            }
 
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
             return authenticationManager.authenticate(authenticationToken);
@@ -102,5 +122,21 @@ public class JwtAuthentificationFilter extends UsernamePasswordAuthenticationFil
         //response.getOutputStream().write(jsonResponse.getBytes());
 
 
+    }
+
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+
+
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setContentType("application/json");
+
+        Map<String, String> errorMap = new HashMap<>();
+        errorMap.put("message", "Verfier l'email et le mot de passe !");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String errorJson = objectMapper.writeValueAsString(errorMap);
+
+        response.getWriter().write(errorJson);
     }
 }

@@ -3,6 +3,9 @@ package com.example.userservice.Services.User;
 
 import com.example.userservice.Entities.User;
 
+import javax.mail.MessagingException;
+import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 public interface IUserService {
@@ -18,4 +21,8 @@ public interface IUserService {
 
 
     User addUserWithRoleAndAffectPrivileges(User user);
+
+
+    Response requestPasswordReset(String email) throws Exception;
+    Response resetPassword(String token, String NewPassword , String ConfirmPassword);
 }

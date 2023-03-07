@@ -8,6 +8,7 @@ import com.example.userservice.Entities.Privilege;
 import com.example.userservice.Entities.Role;
 import com.example.userservice.Entities.User;
 import com.example.userservice.Entities.VerificationToken;
+import com.example.userservice.Model.PasswordResetModel;
 import com.example.userservice.Security.JWTUtil;
 import com.example.userservice.Services.Privilege.IPrivilegeService;
 import com.example.userservice.Services.Role.IRoleService;
@@ -15,11 +16,13 @@ import com.example.userservice.Services.User.IUserService;
 import com.example.userservice.Services.User.VerificationTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.security.Principal;
 import java.sql.Timestamp;
@@ -40,6 +43,16 @@ VerificationTokenService verificationTokenService;
 
         return "bills hello from microservices user !";
 
+    }
+
+    @GetMapping("/requestPasswordReset/{email}")
+    public Response requestPasswordReset(@PathVariable("email") String email) throws Exception {
+        return iUserService.requestPasswordReset(email);
+    }
+    @PostMapping("/password-reset")
+    public Response resetPassword(@RequestBody PasswordResetModel passwordResetModel,@QueryParam("token") String token) {
+        System.out.println(passwordResetModel);
+        return iUserService.resetPassword(token , passwordResetModel.getNewPassword() , passwordResetModel.getConfirmPassword());
     }
 
     @GetMapping("/AllUsers")
