@@ -144,7 +144,7 @@ public class AppeloffreServiceImp implements IAppeloffreService{
         fontParagraph.setSize(18);
         fontParagraph.setColor(Color.BLACK);
 
-        
+
         Paragraph p1=new Paragraph("Commentaire du client:  "+appelOffre.getCommentaire(), fontParagraph);
         p1.setAlignment(Paragraph.ALIGN_LEFT);
         Paragraph p2=new Paragraph("Prix initiale proposé par le client:  "+appelOffre.getPrixInitiale(), fontParagraph);
