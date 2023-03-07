@@ -3,6 +3,7 @@ package com.example.demandeachatservice.Services.DemandeAchat.Comment;
 import com.example.demandeachatservice.Entities.Comment;
 import com.example.demandeachatservice.Entities.React;
 import com.example.demandeachatservice.Entities.ReactComment;
+import org.springframework.http.ResponseEntity;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -18,7 +19,7 @@ public interface ICommentService {
     void deleteComment(int idComment);
 
     List<Comment> getAllCommentsByArticle(int idArticle);
-    public Response save(int idComment, ReactComment reactComment ) ;
+    public ResponseEntity<ReactComment> save(int idComment, ReactComment reactComment ) ;
     List<ReactComment> findAllByIdComment(int idComment);
 
     List<ReactComment> findAllByIdCommentAndEmoji(int idComment, React react);

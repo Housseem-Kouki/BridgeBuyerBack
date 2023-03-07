@@ -13,5 +13,5 @@ public interface IArticleService {
 
     public void assignArticleToDemandeAchat(int idArticle, int idDemande) ;
     public List<Article> SearchMultiple(String key) ;
-
-    }
+    public List<Article> findByCriteria(String nomarticle, String descriptionarticle, Float prixestime, Integer quantite) ;
+}

@@ -306,7 +306,7 @@ public class DemandeAchatController {
     }
 
     @PostMapping("/save/{idComment}")
-    public Response save(@PathVariable("idComment") int idComment , @RequestBody ReactComment reactComment ){
+    public ResponseEntity<ReactComment> save(@PathVariable("idComment") int idComment , @RequestBody ReactComment reactComment ){
 
         return  iCommentService.save(idComment,reactComment) ;
     }
@@ -328,5 +328,13 @@ public class DemandeAchatController {
         return iCommentService.countAllByIdComment(idComment) ;
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Article>> search(@RequestParam(required = false) String nomarticle,
+                                                @RequestParam(required = false) String descriptionarticle,
+                                                @RequestParam(required = false) Float prixestime,
+                                                @RequestParam(required = false) Integer quantite) {
+        List<Article> articles = iArticleService.findByCriteria(nomarticle, descriptionarticle, prixestime, quantite);
+        return ResponseEntity.ok(articles);
+    }
 
 }

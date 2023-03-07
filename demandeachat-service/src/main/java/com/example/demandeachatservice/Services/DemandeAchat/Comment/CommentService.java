@@ -7,6 +7,7 @@ import com.example.demandeachatservice.Repository.ReactCommentRepository;
 import com.example.demandeachatservice.Repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.Response;
@@ -66,10 +67,7 @@ public class CommentService implements ICommentService{
         Article article =  articleRepository.findById(idArticle).orElse(null);
         return articleRepository.getAllCommentsByArticle(article);
 
-
     }
-
-
 
     @Override
     public List<ReactComment> findAllByIdComment(int idComment) {
@@ -93,26 +91,26 @@ public class CommentService implements ICommentService{
         return  nb ;
     }
     @Override
-    public Response save(int idComment, ReactComment reactComment ) {
+    public ResponseEntity<ReactComment> save(int idComment, ReactComment reactComment ) {
         String test="" ;
         Comment comment = commentRepository.findById(idComment).orElse(null) ;
         User user =userRepository.findById(2).orElse(null);//session
         ReactComment existingReactComment = reactCommentRepository.findByUserAndComments(user,comment);
         if (existingReactComment != null && !reactComment.getReact().equals(existingReactComment.getReact())) {
             existingReactComment.setReact(reactComment.getReact());
-            return Response.status(Response.Status.OK).entity(reactCommentRepository.save(existingReactComment)).build();
+            reactCommentRepository.save(existingReactComment);
+            return ResponseEntity.ok(reactComment);
 
         } else if (existingReactComment != null && reactComment.getReact().equals(existingReactComment.getReact())){
             reactCommentRepository.deleteById(existingReactComment.getIdReact());
-            return Response.status(Response.Status.OK).entity("react supprime").build();
+            return  ResponseEntity.ok().build();
         } else {
             reactComment.setUser(user);
             reactComment.setComments(comment);
-            return Response.status(Response.Status.OK).entity(reactCommentRepository.save(reactComment)).build();
+            reactCommentRepository.save(reactComment);
+            return ResponseEntity.ok(reactComment);
 
         }
     }
-
-
 
 }
