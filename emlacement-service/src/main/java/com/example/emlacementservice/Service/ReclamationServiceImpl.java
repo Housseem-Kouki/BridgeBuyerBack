@@ -4,10 +4,13 @@ import com.example.emlacementservice.Entities.Reclamation;
 import com.example.emlacementservice.Entities.User;
 import com.example.emlacementservice.Repository.ReclamationRepository;
 import com.example.emlacementservice.Repository.UserRepository;
+import org.hibernate.query.criteria.internal.expression.function.CurrentDateFunction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.auditing.CurrentDateTimeProvider;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -27,13 +30,20 @@ public class ReclamationServiceImpl implements ReclamationService{
 
 	@Override
 	public void deleteReclamation(Long id) {
-		reclamationRepository.deleteById(id);
-		
+		Reclamation reclamation=reclamationRepository.findById(id).get();
+		if (reclamation.isArchived()==true) {
+			reclamationRepository.delete(reclamation);
+
+		}
+
+
 	}
 
 	@Override
 	public List<Reclamation> getAll() {
-		return reclamationRepository.findAll();
+
+		List<Reclamation> reclamation= reclamationRepository.findAll().stream().filter(c->c.isArchived()==false).collect(Collectors.toList());
+		return reclamation;
 	}
 
 	@Override
@@ -43,30 +53,41 @@ public class ReclamationServiceImpl implements ReclamationService{
 
 	@Override
 	public int NmbreReclamation() {
-	
+
 		return reclamationRepository.findAll().size();
-		
+
 	}
-	
+
 	@Override
-	public Reclamation AddReclamation(Integer id, Reclamation com) {
+	public Reclamation AddReclamation(Reclamation com) {
 		// TODO Auto-generated method stub
 
-		User user=userRepository.findById(id).get();
+		User user=userRepository.findById(1).orElse(null );//session
 		com.setUser(user);
-			return reclamationRepository.save(com);
-		
-		
+		return reclamationRepository.save(com);
+
+
 	}
+
+
 
 	@Override
 	public Reclamation affecterUserAReclamation(Long idR, Integer idU) {
-		  Reclamation com= reclamationRepository.findById(idR).get();
-	        User us=userRepository.findById(idU).get();
-	        com.setUser(us);
+		Reclamation com=reclamationRepository.findById(idR).get();
+		User us=userRepository.findById(idU).get();
+		com.setUser(us);
 
-	        return reclamationRepository.save(com);
+		return reclamationRepository.save(com);
 	}
+
+	@Override
+	public void archiverReclamation(Long id) {
+		Reclamation reclamation=reclamationRepository.findById(id).get();
+		reclamation.setArchived(true);
+		reclamationRepository.save(reclamation);
+
+	}
+
 
 }
 

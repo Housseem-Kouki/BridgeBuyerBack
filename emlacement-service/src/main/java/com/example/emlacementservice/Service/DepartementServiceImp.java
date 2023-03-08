@@ -49,18 +49,17 @@ public class DepartementServiceImp implements IDepartementService {
 		
 	}
 
-	@Override
-	public void affecterAdresseDepartementToDepartement(Integer idD, Integer idAD) {
-	AdresseDepartement adresseDepartement=adresseDepartementRepository.findById(idAD).get();
-	Departement departement=departementRepository.findById(idD).get();
-	departement.setAdresseDepartement(adresseDepartement);
-	departementRepository.save(departement);
-		
-	}
+
 
 	@Override
 	public Departement getDepartByNomDepart(String emplacementDepartement) {
 		// TODO Auto-generated method stub
 		return departementRepository.findByNomDepartement(emplacementDepartement);
 	}
+    @Override
+    public List<Departement> ChercherParNomDepartementContainingIgnoreCase(String nomDepartement) {
+        // TODO Auto-generated method stub
+        return departementRepository.findByNomDepartementContainingIgnoreCase(nomDepartement);
+    }
 }
+

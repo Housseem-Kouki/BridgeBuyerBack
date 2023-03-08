@@ -1,15 +1,14 @@
 package com.example.emlacementservice.Entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
 @Entity
+@Data
 @Getter
 @Setter
 @AllArgsConstructor
@@ -20,7 +19,11 @@ public class Reclamation implements Serializable {
     private Long id;
     private String topic;
     private Date complaintDate;
+    private boolean isArchived;
 
     @ManyToOne
+    @JsonIgnore
     private User user;
+
+
 }
