@@ -16,7 +16,9 @@ public interface ReclamationService {
 
 	public int NmbreReclamation();
 
-	Reclamation AddReclamation(Integer id, Reclamation com);
+	Reclamation AddReclamation( Reclamation com);
 
 	Reclamation affecterUserAReclamation(Long idR, Integer id);
+
+	void archiverReclamation(Long id);
 }

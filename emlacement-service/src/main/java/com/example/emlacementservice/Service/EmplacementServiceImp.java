@@ -1,14 +1,18 @@
 package com.example.emlacementservice.Service;
 
 
-import com.example.emlacementservice.Entities.Departement;
-import com.example.emlacementservice.Entities.Emplacement;
+import com.example.emlacementservice.Entities.*;
 import com.example.emlacementservice.Repository.DepartementRepository;
+import com.example.emlacementservice.Repository.DeviseRepository;
 import com.example.emlacementservice.Repository.EmplacementRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -16,6 +20,7 @@ public class EmplacementServiceImp implements IEmplacementService {
 
     EmplacementRepository emplacementRepository ;
     DepartementRepository departementRepository;
+    private final DeviseRepository deviseRepository;
 
 
     @Override
@@ -45,38 +50,53 @@ public class EmplacementServiceImp implements IEmplacementService {
     }
 
     @Override
-    public void affecterEmplacementToDepartement(Integer idE, Integer idD) {
-        Departement departement=departementRepository.findById(idD).get();
-        Emplacement emplacement=emplacementRepository.findById(idE).get();
-        emplacement.getDepartements().add(departement);
-        emplacementRepository.save(emplacement);
+    public Emplacement affecterEmplacementToDepartement(Emplacement e, Integer idD) {
+        Departement departement=departementRepository.findById(idD).orElse(null);
+        departement.setDepartementEmplacement(e);
+      return   emplacementRepository.save(e);
 
     }
-   /* @Scheduled(cron = "0 0 0 * * *")
-    public void cleanupEmplacements() {
-        List<Emplacement> emplacementsToDelete = emplacementRepository.getEmplacementsOlderThanOneYear();
-        emplacementRepository.deleteAll(emplacementsToDelete);
+
+    @Override
+    public Page<Emplacement> findAllEmplacementTrié(Pageable pageable) {
+        // TODO Auto-generated method stub
+        return emplacementRepository.findAllByOrderByNomEmplacementAsc(pageable);
     }
-    // Schedule la vérification des emplacements sans utilisateur assigné chaque jour à minuit
-   /* @Scheduled(cron = "0 0 0 * * ?")
-    public void verifierEmplacementsSansUtilisateurAssigné() {
-        List<Emplacement> emplacements = emplacementRepository.findByUserIsNull();
+
+
+    @Scheduled(cron="* * */1 * * *")
+    @Override
+    public void supprimerEmplacementsNonAffectes() {
+        List<Emplacement> emplacements = emplacementRepository.findAll();
+
         for (Emplacement emplacement : emplacements) {
-            // Si l'emplacement est inactif, on le désactive
-            if (!emplacement.isActive()) {
-                continue;
-            }
-            // On assigne un utilisateur à l'emplacement
-            User user = userService.getUtilisateurDisponiblePourEmplacement(emplacement);
-            if (utilisateur != null) {
-                emplacement.setUtilisateur(utilisateur);
-                emplacementRepository.save(emplacement);
-            } else {
-                // Si aucun utilisateur disponible n'est trouvé, on désactive l'emplacement
-                emplacement.setActive(false);
-                emplacementRepository.save(emplacement);
+            if (emplacement.getUsers() == null || emplacement.getUsers().isEmpty()) {
+                emplacementRepository.delete(emplacement);
             }
         }
     }
-*/
+    /*@Override
+    public List<Emplacement> filterByDeviseAndResponsable(Devise dev, User resp) {
+        // TODO Auto-generated method stub
+        return emplacementRepository.findByDeviseAndResponsableEmplacement(dev,resp);
+    } */
+    
+  @Override
+    public List<Emplacement> findByCriteria(String nomemp,String devise,String nomresp) {
+
+
+      List<Emplacement> emps= emplacementRepository.findAll().stream()
+              .filter( Emplacement -> nomemp == null ||Emplacement.getNomEmplacement().contains(nomemp))
+              .filter( Emplacement -> devise == null || Emplacement.getDevise().getNomDevise().contains(devise))
+              .filter( Emplacement -> nomresp == null || Emplacement.getResponsableEmplacement().getLname().contains(nomresp))
+              .collect(Collectors.toList());
+      return emps ;
+  }
+
+   /* @Override
+    public List<Emplacement> searchEmplacement(String key) {
+     return emplacementRepository.search(key);
+ } */
 }
+
+

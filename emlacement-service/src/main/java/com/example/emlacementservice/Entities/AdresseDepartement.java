@@ -24,7 +24,6 @@ public class AdresseDepartement implements Serializable {
     private String codePostal ;
 
 
-    @JsonIgnore
     @OneToOne(mappedBy = "adresseDepartement" , cascade = CascadeType.ALL)
     private  Departement departement;
 

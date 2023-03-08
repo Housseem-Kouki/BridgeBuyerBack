@@ -1,6 +1,7 @@
 package com.example.emlacementservice.Service;
 
 
+import com.example.emlacementservice.Entities.AdresseDepartement;
 import com.example.emlacementservice.Entities.Departement;
 
 import java.util.List;
@@ -12,8 +13,12 @@ public interface IDepartementService {
     public Departement getDepartementById(int id);
     public List<Departement> getAllDepartements();
     Departement getByNomDepartement(String nomDepartement);
-    void affecterAdresseDepartementToDepartement(Integer idD , Integer idAD);
+
+    //Departement affecterAdresseDepartementToDepartement(AdresseDepartement ad, Integer idD);
+
+    // Departement affecterAdresseDepartementToDepartement(AdresseDepartement ad, Integer idD);
     Departement getDepartByNomDepart(String emplacementDepartement);
-   
-    
+
+
+    List<Departement> ChercherParNomDepartementContainingIgnoreCase(String nomDepartement);
 }

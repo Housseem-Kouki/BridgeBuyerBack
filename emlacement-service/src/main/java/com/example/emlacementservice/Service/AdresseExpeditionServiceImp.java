@@ -43,21 +43,22 @@ EmplacementRepository emplacementRepository;
     }
 
 	@Override
-	public void affecterShippingAdresseToEmplac(Integer idS, Integer idA) {
-		Emplacement emplacement=emplacementRepository.findById(idA).orElse(null);
-		AdresseExpedition adresseExpedition=AdresseExpeditionRepository.findById(idS).orElse(null);
-		emplacement.setAdresseExpedition(adresseExpedition);
-		emplacementRepository.save(emplacement);
+	public AdresseExpedition affecterShippingAdresseToEmplac(AdresseExpedition ad, Integer ide) {
+        Emplacement e =emplacementRepository.findById(ide).orElse(null);
+        if(e.getAdresseExpedition() == null){
+            e.setAdresseExpedition(ad);
+        }
+
+
+        return AdresseExpeditionRepository.save(ad);
 
 
 	}
-   /* @Scheduled(cron = "0 0 0 * * ?") // Exécuté tous les jours à minuit
-    public void nettoyerAdressesInactives() {
-        List<AdresseExpedition> adressesInactives = AdresseExpeditionRepository.findByActive(false);
+    @Override
+    public List<AdresseExpedition> filterByPaysAndCite(String pays, String cite) {
+        // TODO Auto-generated method stub
+        return AdresseExpeditionRepository.findByPaysAndCite(pays, cite);
+    }
 
-        for (AdresseExpedition adresse : adressesInactives) {
-            AdresseExpeditionRepository.delete(adresse);
-        }
-    }*/
 }
 

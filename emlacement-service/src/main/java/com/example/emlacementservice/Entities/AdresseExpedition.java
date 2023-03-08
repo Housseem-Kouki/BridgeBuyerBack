@@ -22,7 +22,7 @@ public class AdresseExpedition implements Serializable {
     private String pays ;
     private String codePostal ;
 
-    @JsonIgnore
+
     @OneToOne(mappedBy = "adresseExpedition" , cascade = CascadeType.ALL)
     private  Emplacement emplacement;
 

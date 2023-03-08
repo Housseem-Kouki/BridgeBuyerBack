@@ -19,6 +19,9 @@ public class Devise implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idDevise ;
+    private String nomDevise ;
+    private Float tauxInversion ;
+    private Boolean etat ;
 
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "devise")
     @JsonIgnore
