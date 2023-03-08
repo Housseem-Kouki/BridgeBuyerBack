@@ -1,16 +1,19 @@
 package com.example.userservice.Services.User;
 
 
+import com.example.userservice.Entities.Privilege;
 import com.example.userservice.Entities.Role;
 import com.example.userservice.Entities.User;
+import com.example.userservice.Repository.PrivilegeRepository;
 import com.example.userservice.Repository.RoleRepository;
 import com.example.userservice.Repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import javax.transaction.Transactional;
+import javax.ws.rs.core.Response;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -18,15 +21,17 @@ public class UserServiceImp implements IUserService {
 
     UserRepository userRepository;
     RoleRepository roleRepository;
+    PrivilegeRepository privilegeRepository;
     private PasswordEncoder passwordEncoder;
     private VerificationTokenService verificationTokenService;
-   // private EmailUserService emailUserService;
+   private EmailUserService emailUserService;
     @Override
     public User addUser(User u) {
         String pwd = u.getPassword();
         u.setPassword(passwordEncoder.encode(pwd));
         u.setEnabled(false);
-        /*
+
+
         try {
             String token = UUID.randomUUID().toString();
             verificationTokenService.affectUserToken(u , token);
@@ -37,18 +42,20 @@ public class UserServiceImp implements IUserService {
 
         }
 
-         */
+
         return userRepository.save(u);
     }
 
     @Override
     public User updateUser(User u) {
+        String pwd = u.getPassword();
+        u.setPassword(passwordEncoder.encode(pwd));
         return userRepository.save(u);
     }
 
     @Override
     public void deleteUser(int id) {
-        userRepository.deleteById(id);
+      userRepository.deleteById(id);
     }
 
     @Override
@@ -58,6 +65,10 @@ public class UserServiceImp implements IUserService {
 
     @Override
     public List<User> getAllUsers() {
+
+      //  User user = (User) authentication.getPrincipal();
+      //  System.out.println("$$$$$user connected $$$$$$$ "+user.getEmail()+" id "+user.getIdUser());
+
         return userRepository.findAll();
     }
 
@@ -67,7 +78,7 @@ public class UserServiceImp implements IUserService {
         if(user.isEnabled()){
             user.setEnabled(false);
             userRepository.save(user);
-            return true;
+            return false;
         }else {
             user.setEnabled(true);
             userRepository.save(user);
@@ -90,6 +101,41 @@ public class UserServiceImp implements IUserService {
         return userRepository.findByEmail(email);
     }
 
+    @Override
+    @Transactional
+    public User addUserWithRoleAndAffectPrivileges(User u) {
+        String pwd = u.getPassword();
+        u.setPassword(passwordEncoder.encode(pwd));
+        u.setEnabled(false);
+
+        Role r = u.getRole();
+
+        Set<Privilege> affectedPrivileges = new HashSet<>();
+
+        for (Privilege p : r.getPrivileges()) {
+            Privilege privilege = privilegeRepository.findById(p.getIdPrivilege()).orElse(null);
+            if (privilege != null) {
+                if (privilege.getRoles() == null) {
+                    privilege.setRoles(new HashSet<>());
+                }
+                privilege.getRoles().add(r);
+                affectedPrivileges.add(privilege);
+            }
+        }
+
+        r.setPrivileges(affectedPrivileges);
+        roleRepository.save(r);
+        try {
+            String token = UUID.randomUUID().toString();
+            verificationTokenService.affectUserToken(u , token);
+            //send Email
+            emailUserService.sendHtmlMail(u);
+
+        }catch (Exception e){
+            throw new RuntimeException("email invalid");
+        }
+        return userRepository.save(u);
+    }
 
 
 

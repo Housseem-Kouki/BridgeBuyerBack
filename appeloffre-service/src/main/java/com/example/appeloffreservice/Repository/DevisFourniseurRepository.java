@@ -3,6 +3,13 @@ package com.example.appeloffreservice.Repository;
 
 import com.example.appeloffreservice.Entities.DevisFourniseur;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface DevisFourniseurRepository extends JpaRepository<DevisFourniseur, Integer> {
+    @Query("SELECT q FROM DevisFourniseur q WHERE q.idDevisFourniseur = :id1 OR q.idDevisFourniseur = :id2")
+    List<DevisFourniseur> findByIds(@Param("id1") int id1 , @Param("id2") int id2);
+    List<DevisFourniseur> findDevisFourniseursByIdDevisFourniseur(@Param(("id1"))int id1);
 }
