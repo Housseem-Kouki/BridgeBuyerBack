@@ -18,7 +18,7 @@ public class FactureAvoir implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idFactureAvoir ;
     private float montantTotal;
-    private String etat;
+   // private String etat;
     private boolean archive;
 
     @OneToOne
