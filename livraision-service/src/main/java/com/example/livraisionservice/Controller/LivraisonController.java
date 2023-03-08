@@ -16,6 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -27,26 +31,24 @@ public class LivraisonController {
     IFactureAvoirService iFactureAvoirService;
     IBonRetourService iBonRetourService;
     IBonReceptionService iBonReceptionService;
-    //LivraisonRepository livraisonRepository;
 
     //*********************  Livraison  *********************//
-    @GetMapping("/AllLivraison") //fonctionnelle
-    @ResponseBody
-    public List<Livraison> getAllLivraisonList() {
-        return iLivraisonService.getAllLivraison();
-    }
 
-    @PostMapping("/addLivraison") //fonctionnelle
-    @ResponseBody
-    public Livraison addLivraison(@RequestBody Livraison l) {
-        return iLivraisonService.addLivraison(l);
-    }
+
 
     @PostMapping("/addAndAssignToCommande/{idCommande}") //fonctionnelle
     @ResponseBody
     public Livraison addAndAssignToCommande(@PathVariable  int idCommande, @RequestBody Livraison l){
         return iLivraisonService.addAndAssignToCommande(idCommande,l);
     }
+
+
+    @GetMapping("/AllLivraison") //fonctionnelle
+    @ResponseBody
+    public List<Livraison> getAllLivraisonList() {
+        return iLivraisonService.getAllLivraison();
+    }
+
     @GetMapping("/getLivraisonById/{id}") //fonctionnelle
     @ResponseBody
     public Livraison getLivraisonById(@PathVariable("id") int id) {
@@ -65,27 +67,15 @@ public class LivraisonController {
         return iLivraisonService.getLivraisonByFournisseur(id);
     }
 
-    @PutMapping("/affecterBonReceptToBonLivr/{idBonReception}/{idLivraison}") //fonctionnelle
-    public Livraison affecterBonReceptToBonLivr(@PathVariable("idBonReception") int idBonReception, @PathVariable("idLivraison") int idLivraision) {
-        return iLivraisonService.affecterBonReceptToBonLivr(idBonReception, idLivraision);
-    }
-
-    @GetMapping("/SearchMultiple/{keyword}") //fonctionnelle
-    @ResponseBody
-    public List<Livraison> SearchMultiple(@PathVariable("keyword") String key) {
-        return iLivraisonService.SearchMultiple(key);
-    }
 
     @DeleteMapping("/delete/{idLivraison}") //fonctionnelle
     public void deleteLivraison(@PathVariable("idLivraison") int idLivraison) {
         iLivraisonService.deleteLivraison(idLivraison);
     }
-
-      /*  @GetMapping("/getCommandeByLivraison/{idCommande}")
-        public List<Livraison> getCommandeByLivraison(@PathVariable("idCommande") int idCommande) {
-                return iLivraisonService.getLivraisonByCommande(idCommande);
-        }*/
-
+    @PutMapping("/restaure/{id}") //fonctionnel
+    public void restoreLivraison(@PathVariable int id) {
+        iLivraisonService.restoreLivraison(id);
+    }
 
     @PutMapping("/updateDate/{idLivraison}") //fonctionnelle
     public ResponseEntity<Livraison> updateLivraisonDate(@PathVariable("idLivraison") int idLivraison, @RequestParam("dateLivraison") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date dateLivraison) {
@@ -100,14 +90,23 @@ public class LivraisonController {
     }
 
 
-    @PutMapping("/updateBonLivraisonFournisseur/{idLivraison}/{qteRecue}/{qteRetour}") //fonctionnelle
-    public void modifierQuantiteLivraison(@PathVariable("idLivraison") int idLivraison,@PathVariable("qteRecue") Integer qteRecue,@PathVariable("qteRetour") Integer qteRetour){
-        iLivraisonService.modifierQuantiteLivraison(idLivraison, qteRecue ,qteRetour);
-    }
+     /*   @PutMapping("/updateBonLivraisonFournisseur/{idLivraison}/{qteRecue}/{qteRetour}") //fonctionnelle
+        public void modifierQuantiteLivraison(@PathVariable("idLivraison") int idLivraison,@PathVariable("qteRecue") Integer qteRecue,@PathVariable("qteRetour") Integer qteRetour){
+                iLivraisonService.modifierQuantiteLivraison(idLivraison, qteRecue ,qteRetour);
+        }*/
 
     @PutMapping("/valideeBL/{idLivraison}") //fonctionnelle
     public Livraison balideeBL(@PathVariable("idLivraison") int idLivraison){
         return iLivraisonService.validerBL(idLivraison) ;
+    }
+
+    //recherche avancée
+    @GetMapping("/search") //fonctionnel
+    public ResponseEntity<List<Livraison>> search(@RequestParam(required = false) Integer quantiteDelivre,
+                                                  @RequestParam(required = false) Date dateLivraison,
+                                                  @RequestParam(required = false) String etat) {
+        List<Livraison> livraisons = iLivraisonService.rechercheAvance(quantiteDelivre, dateLivraison, etat);
+        return ResponseEntity.ok(livraisons);
     }
 
     //*********************  Bon Reception  *********************//
@@ -118,10 +117,10 @@ public class LivraisonController {
         return iBonReceptionService.getAllBonReception();
     }
 
-    @PostMapping("/addBonReception")
+    @PostMapping("/addBonReception/{idLivraison}")
     @ResponseBody
-    public BonReception addBonReception(@PathVariable("idBonReception") int idBonReception,@PathVariable("qteAccept")int qteAccept,@PathVariable("qteRefus")int qteRefus) {
-        return iBonReceptionService.addBonReception(idBonReception,qteAccept,qteRefus);
+    public BonReception addBonReception(@PathVariable("idLivraison") int idLivraison,@RequestBody BonReception b) {
+        return iBonReceptionService.addBonReception(idLivraison, b);
     }
 
     @GetMapping("/getBonReceptionById/{id}")
@@ -130,12 +129,15 @@ public class LivraisonController {
         return iBonReceptionService.getBonReceptionById(id);
     }
 
-
     @DeleteMapping("/deleteBonReception/{id}")
     private void deleteBonReception(@PathVariable("id") int id) {
         iBonReceptionService.deleteBonReception(id);
     }
 
+    @PutMapping("restaureBR/{id}")
+    public void restoreBonReception(@PathVariable int id) {
+        iBonReceptionService.restoreBonReception(id);
+    }
     @PutMapping("/updateEtat")
     public BonReception updateEtat(@RequestBody BonReception br) {
         return iBonReceptionService.updateEtat(br);
@@ -145,22 +147,29 @@ public class LivraisonController {
     public List<BonReception> getBonReceptByUser(@PathVariable("id") int id){
         return iBonReceptionService.getBonReceptByUser(id);
     }
-    @GetMapping("/SearchMultipleBonRecept/{keyword}")
-    @ResponseBody
-    public List<BonReception> SearchMultiple1(@PathVariable("keyword") String key) {
-        return iBonReceptionService.SearchMultiple1(key);
-    }
+      /*  @GetMapping("/SearchMultipleBonRecept/{keyword}")
+        @ResponseBody
+        public List<BonReception> SearchMultiple1(@PathVariable("keyword") String key) {
+                return iBonReceptionService.SearchMultiple1(key);
+        }*/
 
-    @PutMapping("/affecterBonRetourToBonRecept/{idBonReception}/{idBonRetour}")
-    public BonReception affecterBonRetourToBonRecept(@PathVariable("idBonReception") int idBonReception, @PathVariable("idBonRetour") int idBonRetour) {
-        return iBonReceptionService.affecterBonRetourToBonRecept(idBonReception, idBonRetour);
+
+    //recherche avancée
+    @GetMapping("/search1")
+    public ResponseEntity<List<BonReception>> search1(@RequestParam(required = false) Date dateReception,
+                                                      @RequestParam(required = false) Integer quantiteRecevoir,
+                                                      @RequestParam(required = false) Integer quantiteAccepte,
+                                                      @RequestParam(required = false) String etat) {
+        List<BonReception> bonReceptions = iBonReceptionService.rechercheAvance1(dateReception,quantiteRecevoir, quantiteAccepte, etat);
+        return ResponseEntity.ok(bonReceptions);
     }
 
     //*********************  Bon Retour  *********************//
-    @PostMapping("/addBonRetour/{idBonReception}/{qnt}")
+
+    @PostMapping("/addBonRetour/{idBonReception}") //fonctionnel
     @ResponseBody
-    public BonRetour addBonRetour(@RequestBody BonRetour br,@PathVariable("idBonReception") int idBonReception, @PathVariable("qnt")int qnt) {
-        return iBonRetourService.addBonRetour(br,idBonReception,qnt);
+    public BonRetour addBonRetour(@RequestBody BonRetour br,@PathVariable("idBonReception") int idBonReception) {
+        return iBonRetourService.addBonRetour(br,idBonReception);
     }
 
     @GetMapping("/AllBonRetour")
@@ -183,25 +192,27 @@ public class LivraisonController {
         iBonRetourService.deleteBonRetour(id);
     }
 
+        @PutMapping("restaureBRT/{id}")
+        public void restoreBonRetour(@PathVariable int id) {
+                iBonRetourService.restoreBonRetour(id);
+        }
 
-
-    @GetMapping("/SearchMultipleBonRetour/{keyword}")
-    @ResponseBody
-    public List<BonRetour> SearchMultiple2(@PathVariable("keyword") String key) {
-        return iBonRetourService.SearchMultiple2(key);
-    }
+       @GetMapping("/SearchMultipleBonRetour/{keyword}")
+        @ResponseBody
+        public List<BonRetour> SearchMultiple2(@PathVariable("keyword") String key) {
+                return iBonRetourService.SearchMultiple2(key);
+        }
 
     @PutMapping("/affecterFactureAvoirToBonRetour/{idFactureAvoir}/{idBonRetour}") //fonctionnel
     public BonRetour affecterFactureAvoirToBonRetour(@PathVariable("idFactureAvoir") int idFactureAvoir, @PathVariable("idBonRetour") int idBonRetour) {
         return iBonRetourService.affecterFactureAvoirToBonRetour(idFactureAvoir, idBonRetour);
     }
-
     //*********************  Facture Avoir  *********************//
 
     @PostMapping("/addFactureAvoir")
     @ResponseBody
-    public FactureAvoir addFactureAvoir(@RequestBody FactureAvoir f) {
-        return iFactureAvoirService.addFactureAvoir(f);
+    public FactureAvoir addFactureAvoir(@RequestBody FactureAvoir f,@PathVariable("idBonRetour") int idBonRetour) {
+        return iFactureAvoirService.addFactureAvoir(f,idBonRetour);
     }
 
     @GetMapping("/AllFactureAvoir")
@@ -217,7 +228,9 @@ public class LivraisonController {
         iFactureAvoirService.deleteFactureAvoir(id);
     }
 
-
+    @PutMapping("restaureFA/{id}")
+    public void restoreFactureAvoir(@PathVariable int id) {iFactureAvoirService.restoreFactureAvoir(id);
+    }
 
     @GetMapping("/SearchMultipleFactureAvoir/{keyword}")
     @ResponseBody
@@ -225,30 +238,23 @@ public class LivraisonController {
         return iFactureAvoirService.SearchMultiple3(key);
     }
 
+    //pdf
+    @GetMapping("/pdf/generate/{idLivraison}")
+    public void generatePdf(HttpServletResponse response , @PathVariable("idLivraison") int idLivraison) throws IOException {
 
-    //***********Upload file***************
-    @PostMapping("/uploadFile") //prblm lors du test !!!!!!!!
-    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
-        String message = "";
-        try {
-            // Vérifier que le fichier n'est pas vide
-            if (file.isEmpty()) {
-                message = "Veuillez sélectionner un fichier à télécharger.";
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
-            }
-
-            // Traiter le fichier (par exemple, le stocker sur le disque dur)
-            // ...
-
-            message = "Le fichier " + file.getOriginalFilename() + " a été téléchargé avec succès.";
-            return ResponseEntity.status(HttpStatus.OK).body(message);
-        } catch (Exception e) {
-            message = "Une erreur s'est produite lors du téléchargement du fichier : " + e.getMessage();
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(message);
-        }
-
+        response.setContentType("application/pdf");
+        DateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd:hh:mm:ss");
+        String currentDate= dateFormat.format(new Date());
+        String headerkey="Content-Disposition";
+        String headerValue="attachement; filename=pdf_"+ currentDate + ".pdf";
+        response.setHeader(headerkey, headerValue);
+        this.iLivraisonService.export(response,idLivraison);
+    }
+    //upload file
+    @PostMapping("/uploadFile")
+    public void uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
+        iLivraisonService.uploadFile(file);
     }
 
-    //PDF
 
 }

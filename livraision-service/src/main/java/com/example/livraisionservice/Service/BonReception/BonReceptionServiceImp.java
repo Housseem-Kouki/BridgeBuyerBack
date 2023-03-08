@@ -2,26 +2,34 @@ package com.example.livraisionservice.Service.BonReception;
 
 import com.example.livraisionservice.Entities.BonReception;
 import com.example.livraisionservice.Entities.BonRetour;
+import com.example.livraisionservice.Entities.Livraison;
 import com.example.livraisionservice.Repository.BonReceptionRepository;
 import com.example.livraisionservice.Repository.BonRetourRepository;
+import com.example.livraisionservice.Repository.LivraisonRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @AllArgsConstructor
 public class BonReceptionServiceImp implements IBonReceptionService{
 
     BonReceptionRepository bonReceptionRepository;
     BonRetourRepository bonRetourRepository;
+    LivraisonRepository livraisonRepository;
 
     @Override
-    public BonReception addBonReception(int idBonReception,int qteAccept,int qteRefus) {
-        BonReception bonReception=bonReceptionRepository.findById(idBonReception).orElse(null);
-        bonReception.setQuantiteAccepte(qteAccept);
-        bonReception.setQuantiteRefuse(qteRefus);
-        return bonReceptionRepository.save(bonReception);    }
+    public BonReception addBonReception(int idLivraison,BonReception b) {
+        Livraison livraison = livraisonRepository.findById(idLivraison).orElse(null);
+
+        b.setLivraision(livraison);
+
+
+        return bonReceptionRepository.save(b);    }
 
     @Override
     public BonReception updateEtat(BonReception br) {
@@ -45,6 +53,14 @@ public class BonReceptionServiceImp implements IBonReceptionService{
         bonReception.setArchive(true);
         bonReceptionRepository.save(bonReception);
     }
+    //restaure
+    @Override
+    public void restoreBonReception(int id){
+        BonReception bonReception = bonReceptionRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Bon Reception introuvable"));
+        bonReception.setArchive(false);
+        bonReceptionRepository.save(bonReception);
+    }
 
     @Override
     public BonReception getBonReceptionById(int id) {
@@ -61,19 +77,24 @@ public class BonReceptionServiceImp implements IBonReceptionService{
         return bonReceptionRepository.getBonReceptByUser(idUser);
     }
     //search
-    @Override
+   /* @Override
     public List<BonReception> SearchMultiple1(String key) {
         if (key.equals("")) {
             return (List<BonReception>) bonReceptionRepository.findAll();
         } else {
             return bonReceptionRepository.recherche(key);
         }
-    }
-    //affecter Bon de retour a un bon de recption
-    public BonReception affecterBonRetourToBonRecept(int idBonReception, int idBonRetour) {
-        BonReception bonReception = bonReceptionRepository.findById(idBonReception).orElse(null);
-        BonRetour bonRetour = bonRetourRepository.findById(idBonRetour).orElse(null);
-        bonReception.setBonRetour(bonRetour);
-        return bonReceptionRepository.save(bonReception);
+    }*/
+
+    @Override
+    public List<BonReception> rechercheAvance1(Date dateReception, Integer quantiteRecevoir, Integer quantiteAccepte, String etat)
+    {
+        return bonReceptionRepository.findAll()
+                .stream()
+                .filter(bonReception -> dateReception == null || bonReception.getDateReception()==dateReception)
+                .filter(bonReception -> quantiteRecevoir == null || bonReception.getQuantiteRecevoir()==quantiteRecevoir)
+                .filter(bonReception -> quantiteAccepte == null || bonReception.getQuantiteAccepte()==quantiteAccepte)
+                .filter(bonReception -> etat == null || bonReception.getEtat().contains(etat))
+                .collect(Collectors.toList());
     }
 }

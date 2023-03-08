@@ -12,7 +12,7 @@ public interface LivraisonRepository extends JpaRepository<Livraison, Integer> {
     @Query("select l from Livraison l, Offre o, AppelOffre  aO,Commande c,DemandeAchat  d,User u " +
             "where l.commande.idCommande = c.idCommande " +
             "and o.appelOffre.idAppelOffre=aO.idAppelOffre " +
-            "and d.iddemandeachat=aO.demandeAchat.iddemandeachat and d.acheteur.idUser=?1 ")
+            "and aO.demandeAchat.iddemandeachat=d.iddemandeachat and d.acheteur.idUser=?1 ")
     public List<Livraison> getLivraisonByCommande(Integer idUser);
 
     @Query("select l from Livraison l, Offre o, AppelOffre  aO,Commande c,DevisFourniseur  df,User u " +
@@ -24,6 +24,7 @@ public interface LivraisonRepository extends JpaRepository<Livraison, Integer> {
     //Recherche
     @Query(value = "select l from Livraison l where concat(l.idLivraision,l.quantiteDelivre,l.dateLivraison,l.archive) like %?1% ")
     List<Livraison> recherche(String keyword);
+
 
     //Tri
     /*
