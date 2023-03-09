@@ -22,6 +22,7 @@ public class User implements Serializable {
     private int idUser ;
     private String Fname ;
     private String Lname ;
+
     private String email ;
     private String Password ;
 
@@ -49,6 +50,7 @@ public class User implements Serializable {
 
 
     @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL)
+            @JsonIgnore
     List<Reclamation> complaints;
 
 

@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -22,11 +23,16 @@ public class Paiment implements Serializable {
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "paiment")
     private Set<Commande> commandes;
 
-    private String modePaiement;
+
 
     private String token;
     private double amount;
-    private String description;
-    public String currency;
+
+    @Enumerated(EnumType.STRING)
+    public Currency currency;
+
+    @Temporal(TemporalType.DATE)
+    private Date datePayment;
+
 
 }

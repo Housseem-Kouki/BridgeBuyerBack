@@ -22,6 +22,6 @@ public class FactureAvoir implements Serializable {
     private boolean archive;
 
     @OneToOne
-    private  BonRetour bonRetour;
+    private BonRetour bonRetour;
 
 }

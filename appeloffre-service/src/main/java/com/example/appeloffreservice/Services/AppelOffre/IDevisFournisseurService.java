@@ -1,7 +1,9 @@
 package com.example.appeloffreservice.Services.AppelOffre;
 
 import com.example.appeloffreservice.Entities.DevisFourniseur;
+import com.example.appeloffreservice.Entities.User;
 
+import java.security.Principal;
 import java.util.List;
 
 public interface IDevisFournisseurService {
@@ -11,6 +13,7 @@ public interface IDevisFournisseurService {
    public DevisFourniseur getDevisFourniseurbyId(int id);
     public List<DevisFourniseur> getAllDevisFourniseur();
     public void assignAppeloffreAndUserToDevis( int idAppeloffre ,int idDevis, int idUser);
+    public DevisFourniseur addAndassignAppelAndUserToDevis(DevisFourniseur devisFourniseur , int idAppeloffre , Principal user);
 
     public DevisFourniseur comparerDevis(int id1 , int id2 );
     public float calculremise(int id1 ,int idA, float pourcentageRemise);

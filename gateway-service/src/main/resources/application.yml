@@ -1,7 +1,7 @@
 
 server:
 
-  port: 9098
+  port: 9999
 
 spring:
   application:

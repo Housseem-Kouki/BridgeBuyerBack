@@ -31,5 +31,5 @@ public class BonReception implements Serializable {
 
     @JsonIgnore
     @OneToOne(mappedBy = "bonReception" , cascade = CascadeType.ALL)
-    private  BonRetour bonRetour;
+    private BonRetour bonRetour;
 }

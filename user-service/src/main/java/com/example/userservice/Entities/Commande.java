@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -24,6 +25,7 @@ public class Commande implements Serializable {
     private  Offre offre;
 
     @ManyToOne
+    @JsonIgnore
     private Paiment paiment;
 
     @OneToOne(mappedBy = "commande" , cascade = CascadeType.ALL)
@@ -35,6 +37,12 @@ public class Commande implements Serializable {
     @JsonIgnore
     private Set<Livraison> livraisions;
 
-    private double prixTotal;
-    private int etatCommande;
+    private double prixTotalHorsTaxe;
+    private double prixTotalAvecTaxe;
+    private int etatCommande; // 0 etat non facture 1 etat facture  2  etat payer
+    @Temporal(TemporalType.DATE)
+    private Date creationCommande;
+    private boolean archive;
+
+
 }

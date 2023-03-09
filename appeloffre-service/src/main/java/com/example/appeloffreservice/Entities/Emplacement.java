@@ -38,6 +38,6 @@ public class Emplacement implements Serializable {
     private Set<Departement> departements;
 
     @OneToOne
-    private  AdresseExpedition adresseExpedition;
+    private AdresseExpedition adresseExpedition;
 
 }

@@ -7,19 +7,20 @@ import org.springframework.http.ResponseEntity;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 
 public interface ICommentService {
-    void AddAffectCommentList(Comment comment, int idArticle) throws IOException;
+    void AddAffectCommentList(Comment comment, int idArticle , Principal principal) throws IOException;
 
-    Comment updateComment (Comment comment,  int idArticle);
+    Comment updateComment (Comment comment,  int idArticle , Principal principal);
 
     List<Comment> getAllComments();
 
     void deleteComment(int idComment);
 
     List<Comment> getAllCommentsByArticle(int idArticle);
-    public ResponseEntity<ReactComment> save(int idComment, ReactComment reactComment ) ;
+    public ResponseEntity<ReactComment> save(int idComment, ReactComment reactComment ,Principal principal ) ;
     List<ReactComment> findAllByIdComment(int idComment);
 
     List<ReactComment> findAllByIdCommentAndEmoji(int idComment, React react);

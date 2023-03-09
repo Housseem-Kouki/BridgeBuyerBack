@@ -1,10 +1,8 @@
 package com.example.livraisionservice.Controller;
 
-import com.example.livraisionservice.Entities.BonReception;
-import com.example.livraisionservice.Entities.BonRetour;
-import com.example.livraisionservice.Entities.FactureAvoir;
-import com.example.livraisionservice.Entities.Livraison;
+import com.example.livraisionservice.Entities.*;
 import com.example.livraisionservice.Repository.LivraisonRepository;
+import com.example.livraisionservice.Repository.UserRepository;
 import com.example.livraisionservice.Service.BonReception.IBonReceptionService;
 import com.example.livraisionservice.Service.BonRetour.IBonRetourService;
 import com.example.livraisionservice.Service.FactureAvoir.IFactureAvoirService;
@@ -18,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.Principal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,7 +25,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 public class LivraisonController {
-
+UserRepository userRepository;
     ILivraisonService iLivraisonService;
     IFactureAvoirService iFactureAvoirService;
     IBonRetourService iBonRetourService;
@@ -143,9 +142,10 @@ public class LivraisonController {
         return iBonReceptionService.updateEtat(br);
 
     }
-    @GetMapping("/getBonReceptByUser/{id}")
-    public List<BonReception> getBonReceptByUser(@PathVariable("id") int id){
-        return iBonReceptionService.getBonReceptByUser(id);
+    @GetMapping("/getBonReceptByUser")
+    public List<BonReception> getBonReceptByUser(Principal principal){
+        User user = userRepository.findByEmail(principal.getName());
+        return iBonReceptionService.getBonReceptByUser(user.getIdUser());
     }
       /*  @GetMapping("/SearchMultipleBonRecept/{keyword}")
         @ResponseBody

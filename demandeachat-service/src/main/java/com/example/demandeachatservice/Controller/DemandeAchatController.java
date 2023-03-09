@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 
 
@@ -73,12 +74,12 @@ public class DemandeAchatController {
 
     }
 
-    @PostMapping("/addDemandeAchat/{idNature}/{idUnite}")
+    @PostMapping("/addDemandeAchat")
     @ResponseBody
-    public DemandeAchat addDemandeAchat (@RequestBody DemandeAchat d, @PathVariable("idNature") int idNature ,  @PathVariable("idUnite") int idUnite){
+    public DemandeAchat addDemandeAchat (@RequestBody DemandeAchat d, Principal principal ){
        iSendEmailService.sendSimpleEmail("elkhater.elkharouf@esprit.tn","your Purshase Request is taken care of!","Purs" +
                "hase Request Response");
-        return iDemandeAchatService.addDemandeAchat(d,idNature, idUnite);
+        return iDemandeAchatService.addDemandeAchat(d , principal );
     }
 
     @GetMapping("/getDemandeAchatById/{id}")
@@ -122,8 +123,8 @@ public class DemandeAchatController {
         iDemandeAchatService.AssignDemandeAchatToAppelOffre(idDemande,idAppel);
     }
     @PostMapping("etatDemandeAchat/{idDemande}/{idAppel}")
-    public String etatDemandeAchat(@PathVariable("idDemande") int idDemande , @PathVariable("idAppel") int idAppel){
-        return iDemandeAchatService.etatDemandeAchat(idDemande,idAppel);
+    public String etatDemandeAchat(@PathVariable("idDemande") int idDemande , @PathVariable("idAppel") int idAppel , Principal principal){
+        return iDemandeAchatService.etatDemandeAchat(idDemande,idAppel , principal);
     }
 @PostMapping("/budget/{idDemande}")
     public float BudgetDamandeAchat(@PathVariable("idDemande") int idDemande){
@@ -266,10 +267,11 @@ public class DemandeAchatController {
 
     @PostMapping("/addComment/{idArticle}")
     @ResponseBody
-    public void AddAffectCommentList(@RequestBody Comment comment, @PathVariable("idArticle") int idArticle) throws IOException {
+    public void AddAffectCommentList(@RequestBody Comment comment, @PathVariable("idArticle") int idArticle
+        ,Principal principal ) throws IOException {
 
 
-           iCommentService.AddAffectCommentList(comment, idArticle);
+           iCommentService.AddAffectCommentList(comment, idArticle ,principal);
 
 
     }
@@ -277,9 +279,10 @@ public class DemandeAchatController {
     @PutMapping("/updateComment/{idArticle}")
     @ResponseBody
 
-    public Comment updateComment(@RequestBody Comment comment, @PathVariable("idArticle") int idArticle)
+    public Comment updateComment(@RequestBody Comment comment, @PathVariable("idArticle") int idArticle
+    ,Principal principal)
     {
-        return iCommentService.updateComment(comment,idArticle);
+        return iCommentService.updateComment(comment,idArticle,principal);
 
     }
 
@@ -306,9 +309,11 @@ public class DemandeAchatController {
     }
 
     @PostMapping("/save/{idComment}")
-    public ResponseEntity<ReactComment> save(@PathVariable("idComment") int idComment , @RequestBody ReactComment reactComment ){
+    public ResponseEntity<ReactComment> save(@PathVariable("idComment") int idComment ,
+                                             @RequestBody ReactComment reactComment ,
+                                             Principal principal){
 
-        return  iCommentService.save(idComment,reactComment) ;
+        return  iCommentService.save(idComment,reactComment , principal) ;
     }
 
 

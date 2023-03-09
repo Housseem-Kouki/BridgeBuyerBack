@@ -60,7 +60,9 @@ public class EmailUserService {
 
 
     public void resetPasswordMail(User user) throws MessagingException{
+        System.out.println(user.getIdUser()+" dddddd  "+user.getEmail()+"hhhhhhhhhhhhhhhhhhhh$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
         VerificationToken verificationToken = verificationTokenService.findByUser(user);
+
         if (verificationToken != null){
             String token = verificationToken.getToken();
 
@@ -76,7 +78,7 @@ public class EmailUserService {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message);
 
-            helper.setFrom("kuokihoussem@gmail.com");
+          //  helper.setFrom("kuokihoussem@gmail.com");
             helper.setTo(user.getEmail());
             helper.setSubject(subject);
             helper.setText(mailContent, true);

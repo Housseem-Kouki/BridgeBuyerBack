@@ -20,13 +20,14 @@ public class Livraison implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idLivraision ;
     private int quantiteDelivre;
-    private int quantiteRetour;
+    // private int quantiteRetour;
     @Temporal(TemporalType.DATE)
     private Date dateLivraison;
     private String etat;
     private boolean archive;
 
     @ManyToOne
+    @JsonIgnore
     private Commande commande;
 
     @Override
@@ -51,5 +52,5 @@ public class Livraison implements Serializable {
 
     @JsonIgnore
     @OneToOne(mappedBy = "livraision" , cascade = CascadeType.ALL)
-    private  BonReception bonReception;
+    private BonReception bonReception;
 }

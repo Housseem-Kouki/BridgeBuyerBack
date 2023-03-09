@@ -8,9 +8,8 @@ import com.example.appeloffreservice.Repository.*;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.security.Principal;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -151,6 +150,21 @@ public class DevicFournisseurServiceImp implements IDevisFournisseurService
 
         ));
         devisFourniseurRepository.save(devisFourniseur);
+    }
+
+
+    @Override
+    public DevisFourniseur addAndassignAppelAndUserToDevis(DevisFourniseur devisFourniseur,
+                                                           int idAppeloffre, Principal principal) {
+        User user = userRepository.findByEmail(principal.getName());
+        AppelOffre appelOffre =appelOffreRepository.findById(idAppeloffre).orElse(null);
+        System.out.println(appelOffre.getPrixInitiale()+"cccccccccccccc");
+
+
+        devisFourniseur.setFourniseur(user);
+        devisFourniseur.setAppelOffre(appelOffre);
+        devisFourniseur.setPrixInitiale(appelOffre.getPrixInitiale());
+       return devisFourniseurRepository.save(devisFourniseur);
     }
 
     //@Override

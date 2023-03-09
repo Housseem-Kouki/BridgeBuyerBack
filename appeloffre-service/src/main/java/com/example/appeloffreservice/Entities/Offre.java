@@ -29,10 +29,10 @@ public class Offre implements Serializable {
 
     @JsonIgnore
     @OneToOne(mappedBy = "offre" , cascade = CascadeType.ALL)
-    private  AppelOffre appelOffre;
+    private AppelOffre appelOffre;
 
     @JsonIgnore
     @OneToOne(mappedBy = "offre" , cascade = CascadeType.ALL)
-    private  Commande commande;
+    private Commande commande;
 
 }

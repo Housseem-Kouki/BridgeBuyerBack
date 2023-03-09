@@ -24,6 +24,7 @@ public class AdresseExpedition implements Serializable {
 
 
     @OneToOne(mappedBy = "adresseExpedition" , cascade = CascadeType.ALL)
+    @JsonIgnore
     private  Emplacement emplacement;
 
 }

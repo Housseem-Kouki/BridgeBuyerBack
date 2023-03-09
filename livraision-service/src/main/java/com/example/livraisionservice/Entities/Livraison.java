@@ -20,7 +20,7 @@ public class Livraison implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idLivraision ;
     private int quantiteDelivre;
-   // private int quantiteRetour;
+    // private int quantiteRetour;
     @Temporal(TemporalType.DATE)
     private Date dateLivraison;
     private String etat;

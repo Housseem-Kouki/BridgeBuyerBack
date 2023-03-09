@@ -30,5 +30,5 @@ public class DemandeAchat implements Serializable {
 
     @JsonIgnore
     @OneToOne(mappedBy = "demandeAchat" , cascade = CascadeType.ALL)
-    private  AppelOffre appelOffre;
+    private AppelOffre appelOffre;
 }

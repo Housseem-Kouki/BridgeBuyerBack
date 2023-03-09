@@ -11,4 +11,10 @@ public interface IRoleService {
     public Role getRoleById(int id);
     public List<Role> getAllRoles();
 
+
+    public Role AddRoleWithPrivilege(Role role);
+
+
+    public Boolean AffectRoleToPrivilege(int idRole , int idPrivilege);
+
 }

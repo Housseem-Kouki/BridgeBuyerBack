@@ -58,8 +58,12 @@ public class JwtAuthentificationFilter extends UsernamePasswordAuthenticationFil
                 response.getWriter().write("{ \"message\": \"" + "Verfier l'email et le mot de passe !" + "\" }");
                 return null;
             }
+
             String errorMessage = "Le compte est encore désactivé";
             if (!user.isEnabled()) {
+                /**/
+
+
                 response.setContentType("application/json");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("{ \"message\": \"" + errorMessage + "\" }");
@@ -68,7 +72,11 @@ public class JwtAuthentificationFilter extends UsernamePasswordAuthenticationFil
             }
 
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
+            System.out.println(authenticationToken);
+
+
             return authenticationManager.authenticate(authenticationToken);
+
         }catch (IOException e) {
                 // Si une erreur se produit lors de la lecture des données de la requête, lancer une exception d'authentification
                 throw new BadCredentialsException("Unable to read request body");

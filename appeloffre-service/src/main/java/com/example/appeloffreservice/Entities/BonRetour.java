@@ -22,10 +22,10 @@ public class BonRetour implements Serializable {
     private String commmentaire;
     private boolean archive;
     @OneToOne
-    private  BonReception bonReception;
+    private BonReception bonReception;
 
     @JsonIgnore
     @OneToOne(mappedBy = "bonRetour" , cascade = CascadeType.ALL)
-    private  FactureAvoir factureAvoir;
+    private FactureAvoir factureAvoir;
 
 }

@@ -19,7 +19,7 @@ public class BadWord {
         }
 
         public static String[] loadBadWords() throws IOException {
-            File file = new File("F:\\MicroPiDev\\BridgeBuyerMicroService\\demandeachat-service\\src\\main\\resources\\badwords.txt");
+            File file = new File("C:\\Users\\Kouki\\Desktop\\PiBackend\\BridgeBuyerMicroServices\\demandeachat-service\\src\\main\\resources\\badwords.txt");
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String line;
             StringBuilder builder = new StringBuilder();

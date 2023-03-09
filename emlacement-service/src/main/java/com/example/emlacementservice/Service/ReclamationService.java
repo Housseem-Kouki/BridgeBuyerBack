@@ -2,6 +2,7 @@ package com.example.emlacementservice.Service;
 
 import com.example.emlacementservice.Entities.Reclamation;
 
+import java.security.Principal;
 import java.util.List;
 
 public interface ReclamationService {
@@ -16,7 +17,7 @@ public interface ReclamationService {
 
 	public int NmbreReclamation();
 
-	Reclamation AddReclamation( Reclamation com);
+	Reclamation AddReclamation(Reclamation com , Principal principal);
 
 	Reclamation affecterUserAReclamation(Long idR, Integer id);
 

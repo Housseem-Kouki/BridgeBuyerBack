@@ -1,19 +1,26 @@
 package com.example.commandeservice.Controller;
 
 import com.example.commandeservice.Entities.*;
+import com.example.commandeservice.Repository.UserRepository;
 import com.example.commandeservice.ServiceCommande.*;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.security.Principal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/Commandes")
 public class CommandeController {
-    
-    
+
+UserRepository userRepository;
     ICommandeService iCommandeService;
     ITaxeService    iTaxeService;
     IPaimentService iPaimentService;
@@ -23,13 +30,14 @@ public class CommandeController {
 
     //---------------------------- Commande --------------------------------------//
 
-
+    // operateur get all commandes
     @GetMapping("/getAllCommandes")
     public List<Commande> getAllCommandes(){
         return iCommandeService.getAllCommandes();
-
-
     }
+
+
+    // Acheteur  accepte  offre et cretion d'une commande
     @PostMapping("/addCommandeAndAssignToOffre/{id}")
     @ResponseBody
     public Commande addCommandeAndAssignOffre(@RequestBody Commande c,@PathVariable("id") int id) {
@@ -54,24 +62,24 @@ public class CommandeController {
     }
 
     @GetMapping("/getCommandeByUser")
-    public List<Commande> getCommandeByUser(){
-        return iCommandeService.getCommandeByUser();
+    public List<Commande> getCommandeByUser(Principal principal){
+        return iCommandeService.getCommandeByUser(principal);
 
     }
 
     @GetMapping("/getCommandeFournisuer")
-    public List<Commande> getCommandeFournisuer(){
-        return iCommandeService.getCommandeFournisuer();
+    public List<Commande> getCommandeFournisuer(Principal principal){
+        return iCommandeService.getCommandeFournisuer(principal);
 
     }
     @GetMapping("/getCommandeByEtat/{etat}")
-    public List<Commande> getCommandeByEtat(@PathVariable("etat") int etat){
-        return iCommandeService.getCommandeByEtat(etat);
+    public List<Commande> getCommandeByEtatFourniseur(@PathVariable("etat") int etat,Principal principal){
+        return iCommandeService.getCommandeByEtat(etat,principal);
 
     }
 
 
-        //---------------------------- Taxe --------------------------------------//
+    //---------------------------- Taxe --------------------------------------//
     @GetMapping("/getAllTaxes")
     public List<Taxe> getAllTaxes(){
         return iTaxeService.getAllTaxes();
@@ -98,7 +106,7 @@ public class CommandeController {
         return iTaxeService.getTaxeById(id);
 
     }
-    
+
     //---------------------------- Paiment --------------------------------------//
 
     @GetMapping("/getAllPaiments")
@@ -133,8 +141,8 @@ public class CommandeController {
     }
     @PostMapping("/addFactureAndAssignToCommande/{idcommande}")
     @ResponseBody
-    public Facture addFactureAndAssignToCommande(@RequestBody Facture f, @PathVariable("idcommande") int idcommande ){
-           return iFactureService.addFactureAndAssignToCommande(f,idcommande);
+    public Facture addFactureAndAssignToCommande(@RequestBody Facture f, @PathVariable("idcommande") int idcommande  ){
+        return iFactureService.addFactureAndAssignToCommande(f,idcommande);
     }
     @PutMapping("/updateFacture")
     @ResponseBody
@@ -153,7 +161,7 @@ public class CommandeController {
     }
     //---------------------------- ChargeFinanciere --------------------------------------//
 
-    @GetMapping("/getAllChargeFinancieres") 
+    @GetMapping("/getAllChargeFinancieres")
     public List<ChargeFinanciere> getAllChargeFinancieres(){
         return iChargeService.getAllChargeFinancieres();
     }
@@ -179,6 +187,17 @@ public class CommandeController {
     }
 
 
+    @GetMapping("/pdf/generate/{idFacture}")
+    public void generatePdf(HttpServletResponse response , @PathVariable("idFacture") int idFacture) throws IOException {
+
+        response.setContentType("application/pdf");
+        DateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd:hh:mm:ss");
+        String currentDate= dateFormat.format(new Date());
+        String headerkey="Content-Disposition";
+        String headerValue="attachement; filename=pdf_"+ currentDate + ".pdf";
+        response.setHeader(headerkey, headerValue);
+        this.iFactureService.export(response,idFacture);
+    }
 
 
 }

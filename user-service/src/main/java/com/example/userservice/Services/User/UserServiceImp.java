@@ -20,6 +20,7 @@ import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.AccessDeniedException;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -40,7 +41,22 @@ public class UserServiceImp implements IUserService {
         u.setPassword(passwordEncoder.encode(pwd));
         u.setEnabled(false);
 
+        Role r = u.getRole();
+        Set<Privilege> affectedPrivileges = new HashSet<>();
 
+        for (Privilege p : r.getPrivileges()) {
+            Privilege privilege = privilegeRepository.findById(p.getIdPrivilege()).orElse(null);
+            if (privilege != null) {
+                if (privilege.getRoles() == null) {
+                    privilege.setRoles(new HashSet<>());
+                }
+                privilege.getRoles().add(r);
+                affectedPrivileges.add(privilege);
+            }
+        }
+
+        r.setPrivileges(affectedPrivileges);
+        roleRepository.save(r);
         try {
             String token = UUID.randomUUID().toString();
             verificationTokenService.affectUserToken(u , token);
@@ -64,6 +80,9 @@ public class UserServiceImp implements IUserService {
 
     @Override
     public void deleteUser(int id) {
+        User user = userRepository.findById(id).orElse(null);
+        System.out.println("ahouaaaaaaaaaaaaaaaaaaa"+user.getEmail());
+
       userRepository.deleteById(id);
     }
 
@@ -118,7 +137,6 @@ public class UserServiceImp implements IUserService {
         u.setEnabled(false);
 
         Role r = u.getRole();
-
         Set<Privilege> affectedPrivileges = new HashSet<>();
 
         for (Privilege p : r.getPrivileges()) {
@@ -158,6 +176,7 @@ public class UserServiceImp implements IUserService {
        try {
            String token = UUID.randomUUID().toString();
            verificationTokenService.affectUserToken(user , token);
+
            emailUserService.resetPasswordMail(user);
 
        }catch (Exception e){
@@ -191,5 +210,37 @@ public class UserServiceImp implements IUserService {
         return  Response.status(Response.Status.OK).entity("Mot de passe a été modifier  ").build();
     }
 
+
+    @Override
+    public Set<Privilege> getListPrivilegesUser(int idUser) {
+        User user = userRepository.findById(idUser).orElse(null);
+        //  List<Privilege> ls = (List<Privilege>) user.getRole().getPrivileges();
+        return user.getRole().getPrivileges();
+    }
+
+    @Override
+    @Transactional
+    public User annulerPrivilegeUser(int idUser, int idPrivilege) {
+        User user = userRepository.findById(idUser).orElse(null);
+        Privilege privilege = privilegeRepository.findById(idPrivilege).orElse(null);
+        Role role = user.getRole();
+        role.getPrivileges().remove(privilege);
+        privilege.getRoles().remove(role);
+        privilegeRepository.save(privilege);
+        roleRepository.save(role);
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User addPrivilegeToUser(int idUser, int idPrivilegr) {
+
+        User user = userRepository.findById(idUser).orElse(null);
+
+        Privilege privilege = privilegeRepository.findById(idPrivilegr).orElse(null);
+       user.getRole().getPrivileges().add(privilege);
+       privilege.getRoles().add(user.getRole());
+        privilegeRepository.save(privilege);
+        return userRepository.save(user);
+    }
 
 }

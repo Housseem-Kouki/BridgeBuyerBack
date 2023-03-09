@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -57,7 +58,11 @@ public class ArticleService implements IArticleService {
     public void assignArticleToDemandeAchat(int idArticle, int idDemande) {
         Article article = articleRepository.findById(idArticle).orElse(null);
         DemandeAchat demandeAchat = demandeAchatRepository.findById(idDemande).orElse(null);
-     article.getDemandeAchats().add(demandeAchat);
+        if (demandeAchat.getArticles() == null) {
+            demandeAchat.setArticles(new HashSet<>());
+
+        }
+        demandeAchat.getArticles().add(article);
        articleRepository.save(article) ;
     }
 

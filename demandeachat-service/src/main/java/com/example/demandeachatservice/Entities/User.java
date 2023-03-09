@@ -24,7 +24,7 @@ public class User implements Serializable {
     private String Lname ;
     private String email ;
     private String Password ;
-private String PhoneNumber ;
+
 
     private boolean enabled;
     @ManyToOne
@@ -50,5 +50,10 @@ private String PhoneNumber ;
 
     @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL)
     List<Reclamation> complaints;
+
+
+
+
+
 
 }

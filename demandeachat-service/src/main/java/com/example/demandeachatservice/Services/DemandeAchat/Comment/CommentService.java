@@ -10,8 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 
 @Slf4j
@@ -24,9 +24,10 @@ public class CommentService implements ICommentService{
     ReactCommentRepository reactCommentRepository ;
 
     @Override
-    public void AddAffectCommentList(Comment comment, int idArticle) throws IOException {
+    public void AddAffectCommentList(Comment comment, int idArticle , Principal principal) throws IOException {
+
         Article article =  articleRepository.findById(idArticle).orElse(null);
-        User user =  userRepository.findById(2).orElse(null);
+        User user =  userRepository.findByEmail(principal.getName());
         comment.setContent(BadWord.filterBadWords(comment.getContent()));
 
         comment.setArticle(article);
@@ -36,9 +37,9 @@ public class CommentService implements ICommentService{
     }
 
     @Override
-    public Comment updateComment(Comment comment, int idArticle) {
+    public Comment updateComment(Comment comment, int idArticle , Principal principal) {
         Article article =  articleRepository.findById(idArticle).orElse(null);
-        User user =  userRepository.findById(2).orElse(null);
+        User user =  userRepository.findByEmail(principal.getName());
 
 
         comment.setArticle(article);
@@ -91,10 +92,11 @@ public class CommentService implements ICommentService{
         return  nb ;
     }
     @Override
-    public ResponseEntity<ReactComment> save(int idComment, ReactComment reactComment ) {
+    public ResponseEntity<ReactComment> save(int idComment, ReactComment reactComment ,Principal principal) {
         String test="" ;
         Comment comment = commentRepository.findById(idComment).orElse(null) ;
-        User user =userRepository.findById(2).orElse(null);//session
+
+        User user =userRepository.findByEmail(principal.getName());//session
         ReactComment existingReactComment = reactCommentRepository.findByUserAndComments(user,comment);
         if (existingReactComment != null && !reactComment.getReact().equals(existingReactComment.getReact())) {
             existingReactComment.setReact(reactComment.getReact());

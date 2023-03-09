@@ -26,6 +26,6 @@ public class AdresseDepartement implements Serializable {
 
     @JsonIgnore
     @OneToOne(mappedBy = "adresseDepartement" , cascade = CascadeType.ALL)
-    private  Departement departement;
+    private Departement departement;
 
 }

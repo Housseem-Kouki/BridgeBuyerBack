@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.auditing.CurrentDateTimeProvider;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,10 +60,10 @@ public class ReclamationServiceImpl implements ReclamationService{
 	}
 
 	@Override
-	public Reclamation AddReclamation(Reclamation com) {
+	public Reclamation AddReclamation(Reclamation com , Principal principal) {
 		// TODO Auto-generated method stub
 
-		User user=userRepository.findById(1).orElse(null );//session
+		User user=userRepository.findByEmail(principal.getName());//session
 		com.setUser(user);
 		return reclamationRepository.save(com);
 

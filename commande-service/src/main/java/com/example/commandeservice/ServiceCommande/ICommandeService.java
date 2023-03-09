@@ -4,20 +4,24 @@ package com.example.commandeservice.ServiceCommande;
 
 import com.example.commandeservice.Entities.Commande;
 
+import java.security.Principal;
 import java.util.List;
 
 public interface ICommandeService {
 
     public List<Commande> getAllCommandes();
-    public Commande addCommandeAndAssignOffre(Commande commande, int id);
+
     public Commande updateCommande(Commande commande);
     public void deleteCommande(int id);
     public Commande getCommandeById(int id );
 
-    public List<Commande> getCommandeByUser();
-    public List<Commande> getCommandeFournisuer();
+    public List<Commande> getCommandeByUser(Principal principal);
+    public List<Commande> getCommandeFournisuer(Principal principal);
 
-    public List<Commande> getCommandeByEtat(int etat);
+    public List<Commande> getCommandeByEtat(int etat,Principal principal);
+    public Commande addCommandeAndAssignOffre(Commande commande, int id);
+
+
 
 
 

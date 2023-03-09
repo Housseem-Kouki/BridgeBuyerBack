@@ -14,6 +14,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 
 import javax.websocket.server.PathParam;
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -210,14 +211,14 @@ public class MainController {
     }
 
     @PostMapping("/add")
-    public String AddReclamation( @RequestBody Reclamation com) {
+    public String AddReclamation(@RequestBody Reclamation com , Principal principal) {
 		/*List<String> dic = reclamationRepository.Dictionnaire();
 		for (int i = 1; i <= dic.size(); i++) {
 			if (com.getTopic().contains(dic.get(i - 1))) {
 				break;
 			} else {
 				if (i == dic.size()) { */
-        ReclamationService.AddReclamation( com);
+        ReclamationService.AddReclamation( com , principal);
         SimpleMailMessage message = new SimpleMailMessage();
 
         message.setTo(com.getUser().getEmail());

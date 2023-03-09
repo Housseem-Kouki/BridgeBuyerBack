@@ -25,5 +25,5 @@ public class Departement implements Serializable {
     private Emplacement departementEmplacement;
 
     @OneToOne
-    private  AdresseDepartement adresseDepartement;
+    private AdresseDepartement adresseDepartement;
 }

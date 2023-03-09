@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.context.annotation.ComponentScan;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -17,7 +16,6 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ComponentScan
 public class AppelOffre implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,13 +33,14 @@ public class AppelOffre implements Serializable {
 
 
     @OneToOne
-    private  DemandeAchat demandeAchat;
+    private DemandeAchat demandeAchat;
 
     @OneToOne
-    private  Offre offre;
+    private Offre offre;
 
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "appelOffre")
     @JsonIgnore
     private Set<DevisFourniseur> ListDevisFourniseurs;
+
 
 }

@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import java.nio.file.AccessDeniedException;
 import java.security.Principal;
 import java.sql.Timestamp;
 import java.util.*;
@@ -57,6 +58,7 @@ VerificationTokenService verificationTokenService;
 
     @GetMapping("/AllUsers")
     @ResponseBody
+    @PostAuthorize("hasAnyAuthority('Consulter User')")
     public List<User> getAllUsers(){
         return iUserService.getAllUsers();
     }
@@ -65,7 +67,15 @@ VerificationTokenService verificationTokenService;
     @PostMapping("/addUser")
     @ResponseBody
     public Response addUser (@RequestBody User user){
-
+        if (user.getEmail() == ""){
+            return Response.status(Response.Status.BAD_REQUEST).entity("Email Obligatoire").build();
+        }
+        if (user.getPassword() == ""){
+            return Response.status(Response.Status.BAD_REQUEST).entity("Password Obligatoire").build();
+        }
+        if (user.getLname() == "" || user.getFname()==""){
+            return Response.status(Response.Status.BAD_REQUEST).entity("Nom et prenom Obligatoires").build();
+        }
         if (iUserService.laodUserByUserName(user.getEmail()) != null){
             return Response.status(Response.Status.CONFLICT).entity("email déja exist  ").build();
         }else {
@@ -91,10 +101,15 @@ VerificationTokenService verificationTokenService;
     }
 
 
+
     @DeleteMapping("/deleteUser/{id}")
     private void deleteUser(@PathVariable("id") int id)
     {
-        iUserService.deleteUser(id);
+            iUserService.deleteUser(id);
+
+
+
+
     }
 
     @PutMapping("/updateUser")
@@ -218,7 +233,39 @@ VerificationTokenService verificationTokenService;
         }
     }
 
+
+
+
+    @GetMapping("/getListPrivilegesUser/{idUser}")
+    public Set<Privilege> getListPrivilegesUser(@PathVariable("idUser")int idUser) {
+        return  iUserService.getListPrivilegesUser(idUser);
+    }
+    @PostMapping("/annulerPrivilegeUser/{idUser}/{idPrivilege}")
+    public User annulerPrivilegeUser(@PathVariable("idUser")int idUser,@PathVariable("idPrivilege") int idPrivilege) {
+        return iUserService.annulerPrivilegeUser(idUser,idPrivilege);
+
+    }
+
+    @PostMapping("/addPrivilegeToUser/{idUser}/{idPrivilegr}")
+    public User addPrivilegeToUser(@PathVariable("idUser")int idUser,@PathVariable("idPrivilegr")int idPrivilegr) {
+        return iUserService.addPrivilegeToUser( idUser,idPrivilegr);
+    }
+
+
+
+
+
+
+
     /**************************************************************************************************/
+    @PostMapping("/AffectRoleToPrivilege/{idRole}/{idPrivilege}")
+    public Boolean AffectRoleToPrivilege(@PathVariable("idRole") int idRole ,@PathVariable("idPrivilege") int idPrivilege){
+        return iRoleService.AffectRoleToPrivilege(idRole,idPrivilege);
+    }
+    @PostMapping("/addRoleAddRoleWithPrivilege")
+    public Role AddRoleWithPrivilege(@RequestBody Role role) {
+        return iRoleService.AddRoleWithPrivilege(role);
+    }
     @GetMapping("/AllRoles")
     @ResponseBody
     public List<Role> getAllRoles(){

@@ -22,6 +22,6 @@ public class PayementController {
     IPaimentService iPaimentService;
     @PostMapping("/payer")
     public Paiment chargeCreditCard(@RequestBody Paiment paymentRequest) {
-       return iPaimentService.addPaiment(paymentRequest);
+        return iPaimentService.PayerCommandesAndAddPaiment(paymentRequest);
     }
 }

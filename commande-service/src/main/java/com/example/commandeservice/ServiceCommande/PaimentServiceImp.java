@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 
@@ -28,37 +25,43 @@ public class PaimentServiceImp implements IPaimentService{
 
     @Value("${stripe.secretkey}")
     private String secretKey;
+
+
+
     @Override
     public List<Paiment> getAllPaiments() {
         return paimentRepository.findAll();
     }
 
     @Override
-    public Paiment addPaiment(Paiment paymentRequest) {
+    public Paiment PayerCommandesAndAddPaiment(Paiment paymentRequest) {
         double prixTotal = 0;
         Stripe.apiKey = secretKey;
         String token = paymentRequest.getToken();
         Set<Commande> cmds = paymentRequest.getCommandes();
         paymentRequest.setCommandes(null);
         for (Commande cmd : cmds) {
-         Commande commande = commandeRepository.findById(cmd.getIdCommande()).orElse(null);
-         commande.setPaiment(paymentRequest);
-             prixTotal += cmd.getPrixTotal();
-
+            Commande commande = commandeRepository.findById(cmd.getIdCommande()).orElse(null);
+            if (commande.getEtatCommande()==1) {
+                commande.setPaiment(paymentRequest);
+                prixTotal += commande.getPrixTotalAvecTaxe();
+                commande.setEtatCommande(2);}
+            else
+                System.out.println("la commande numero"+commande.getIdCommande()+"pas encore facture");
         }
         int amount = (int) prixTotal;
 
-        String description = paymentRequest.getDescription();
-        String currency = paymentRequest.getCurrency();
-         paymentRequest.setAmount(amount);
+        String currency = String.valueOf(paymentRequest.getCurrency());
+        paymentRequest.setAmount(amount);
+        paymentRequest.setDatePayment(new Date());
         try {
             Map<String, Object> params = new HashMap<>();
-            params.put("amount", amount);
+            params.put("amount", amount*100);
             params.put("currency", currency);
-            params.put("description", description);
+
             params.put("source", token);
             Charge charge = Charge.create(params);
-            mailService.sendEmail("malek.soufi@esprit.tn", "Payement", "Commande Payer");
+            mailService.sendEmail("malek.soufi@esprit.tn", "Payement", "paiement avec le montant  "+prixTotal+""+currency+" est payer aves succes");
             return paimentRepository.save(paymentRequest);
         } catch (Exception e) {
             return null;
@@ -74,7 +77,7 @@ public class PaimentServiceImp implements IPaimentService{
 
     @Override
     public void deletePaiment(int id) {
-    paimentRepository.deleteById(id);
+        paimentRepository.deleteById(id);
     }
 
     @Override

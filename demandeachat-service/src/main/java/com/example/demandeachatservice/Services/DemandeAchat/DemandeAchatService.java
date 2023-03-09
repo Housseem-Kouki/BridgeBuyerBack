@@ -2,6 +2,7 @@ package com.example.demandeachatservice.Services.DemandeAchat;
 
 import com.example.demandeachatservice.Entities.*;
 import com.example.demandeachatservice.Repository.*;
+import com.example.demandeachatservice.Services.DemandeAchat.Article.IArticleService;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
@@ -9,23 +10,24 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-
 import javax.mail.MessagingException;
+
 import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import java.io.File;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 @Service
 @AllArgsConstructor
-
 public class DemandeAchatService implements IDemandeAchatService {
     DemandeAchatRepository demandeAchatRepository;
     ArticleRepository articleRepository;
+
+    IArticleService iArticleService;
 
      NatureArticleRepository natureArticleRepository;
      UniteArticleRepository uniteRepository;
@@ -38,31 +40,44 @@ public class DemandeAchatService implements IDemandeAchatService {
     @Override
     @Transactional
 
-    public DemandeAchat addDemandeAchat(DemandeAchat d, int idNature, int idUnite) {
+    public DemandeAchat addDemandeAchat(DemandeAchat d , Principal principal ) {
 
-        Article article = saveArticle(d, idNature, idUnite);
-User user =userRepository.findById(1).orElse(null) ;
-        if (article.getDemandeAchats() == null) {
-            article.setDemandeAchats(new HashSet<>());
-            d.setAcheteur(user);
+        User user = userRepository.findByEmail(principal.getName());
+        for (Article article : d.getArticles()){
+            saveArticle(article, article.getNatureArticle().getIdnaturearticle(), article.getUniteArticle().getIdunitearticle());
+           // d.getArticles().add(article);
+           //  iArticleService.assignArticleToDemandeAchat(article.getIdarticle(),d.getIddemandeachat());
+            if (article.getDemandeAchats() == null) {
+                article.setDemandeAchats(new HashSet<>());
 
+            }
+            article.getDemandeAchats().add(d);
+           // articleRepository.save(article);
+          /*  if (article.getDemandeAchats() == null) {
+                article.setDemandeAchats(new HashSet<>());
+
+
+            }*/
         }
+        d.setAcheteur(user);
+
+       // Article article = saveArticle(d, d.get, idUnite);
+        //User user =userRepository.findById(1).orElse(null) ;
+
         return demandeAchatRepository.save(d);
     }
 
 
 
-    private Article saveArticle(DemandeAchat d, int idNature, int idUnite) {
-        Set<Article> articles = (Set<Article>) d.getArticles();
+    private Article saveArticle(Article article, int idNature, int idUnite) {
+
         NatureArticle natureArticle = natureArticleRepository.findById(idNature).orElse(null);
         UniteArticle uniteArticle = uniteRepository.findById(idUnite).orElse(null);
-        for (Article article : articles) {
-            article.setUniteArticle(uniteArticle);
-            article.setNatureArticle(natureArticle);
+        article.setUniteArticle(uniteArticle);
+        article.setNatureArticle(natureArticle);
+        return articleRepository.save(article);
 
-            return articleRepository.save(article);
-        }
-        return null;
+
     }
 
 
@@ -87,9 +102,10 @@ User user =userRepository.findById(1).orElse(null) ;
     }
 
     @Override
-    public String etatDemandeAchat( int idDemande ,  int idAppel) {
+    public String etatDemandeAchat( int idDemande ,  int idAppel , Principal principal) {
 
         DemandeAchat d= demandeAchatRepository.findById(idDemande).orElse(null);
+        User user = userRepository.findByEmail(principal.getName()) ;
         if(d.getEtatdemandeachat()==0){
             return "demande en cours de traitement" ;
         }
