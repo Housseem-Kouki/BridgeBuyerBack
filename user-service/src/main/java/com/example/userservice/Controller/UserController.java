@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
-
+@CrossOrigin(origins = "*")
 public class UserController {
 IUserService iUserService;
 IPrivilegeService iPrivilegeService;

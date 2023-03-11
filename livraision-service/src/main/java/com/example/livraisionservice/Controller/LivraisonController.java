@@ -209,7 +209,7 @@ UserRepository userRepository;
     }
     //*********************  Facture Avoir  *********************//
 
-    @PostMapping("/addFactureAvoir")
+    @PostMapping("/addFactureAvoir/{idBonRetour}")
     @ResponseBody
     public FactureAvoir addFactureAvoir(@RequestBody FactureAvoir f,@PathVariable("idBonRetour") int idBonRetour) {
         return iFactureAvoirService.addFactureAvoir(f,idBonRetour);

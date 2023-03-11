@@ -18,6 +18,8 @@ public interface IEmplacementService {
     Page<Emplacement> findAllEmplacementTrié(Pageable pageable);
     void supprimerEmplacementsNonAffectes();
 
+    public Emplacement affectResponsableToUser(int idUserResponsble , int idEmplacement );
+
 
     //List<Emplacement> searchEmplacement(String key);
     //List<Emplacement> filterByDeviseAndResponsable(Devise dev, User resp);

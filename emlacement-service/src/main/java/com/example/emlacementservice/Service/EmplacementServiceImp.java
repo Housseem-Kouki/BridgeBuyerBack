@@ -5,12 +5,14 @@ import com.example.emlacementservice.Entities.*;
 import com.example.emlacementservice.Repository.DepartementRepository;
 import com.example.emlacementservice.Repository.DeviseRepository;
 import com.example.emlacementservice.Repository.EmplacementRepository;
+import com.example.emlacementservice.Repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +22,7 @@ public class EmplacementServiceImp implements IEmplacementService {
 
     EmplacementRepository emplacementRepository ;
     DepartementRepository departementRepository;
+    UserRepository userRepository;
     private final DeviseRepository deviseRepository;
 
 
@@ -74,6 +77,18 @@ public class EmplacementServiceImp implements IEmplacementService {
                 emplacementRepository.delete(emplacement);
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public Emplacement affectResponsableToUser(int idUserResponsble , int idEmplacement) {
+        Emplacement emplacement = emplacementRepository.findById(idEmplacement).orElse(null);
+        User user = userRepository.findById(idUserResponsble).orElse(null);
+        user.setEmplacement(emplacement);
+        emplacement.getUsers().add(user);
+
+        userRepository.save(user);
+        return emplacementRepository.save(emplacement);
     }
     /*@Override
     public List<Emplacement> filterByDeviseAndResponsable(Devise dev, User resp) {

@@ -1,7 +1,6 @@
 package com.example.livraisionservice.Service.FactureAvoir;
 
-import com.example.livraisionservice.Entities.BonRetour;
-import com.example.livraisionservice.Entities.FactureAvoir;
+import com.example.livraisionservice.Entities.*;
 import com.example.livraisionservice.Repository.BonRetourRepository;
 import com.example.livraisionservice.Repository.FactureAvoirRepository;
 import lombok.AllArgsConstructor;
@@ -9,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -19,6 +19,8 @@ public class FactureAvoirServiceImp implements IFactureAvoirService{
     @Override
     public FactureAvoir addFactureAvoir(FactureAvoir f,int idBonRetour) {
         BonRetour bonRetour = bonRetourRepository.findById(idBonRetour).orElse(null);
+       Commande commande = bonRetour.getBonReception().getLivraision().getCommande();
+         f.setMontantTotal((float) commande.getPrixTotalAvecTaxe());
         f.setBonRetour(bonRetour);
         return factureAvoirRepository.save(f);
     }

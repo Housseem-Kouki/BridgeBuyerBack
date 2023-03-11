@@ -31,6 +31,11 @@ public class MainController {
     JavaMailSender emailSender;
     private final EmplacementRepository emplacementRepository;
 
+    @PostMapping("/affectResponsableToUser/{idUserResponsble}/{idEmplacement}")
+    public Emplacement affectResponsableToUser(@PathVariable("idUserResponsble") int idUserResponsble ,
+                                               @PathVariable("idEmplacement") int idEmplacement) {
+        return iEmplacementService.affectResponsableToUser(idUserResponsble,idEmplacement);
+    }
 
     @GetMapping("/AllDepartements")
     @ResponseBody
