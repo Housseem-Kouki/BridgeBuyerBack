@@ -25,7 +25,7 @@ public class Article implements Serializable {
     private int quantite ;
 
 
-
+    private float prixestimeAvecRemise  ;
     @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @JsonIgnore
     private Set<DemandeAchat> demandeAchats;

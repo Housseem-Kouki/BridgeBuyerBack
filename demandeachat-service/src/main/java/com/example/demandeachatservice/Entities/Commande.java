@@ -29,7 +29,6 @@ public class Commande implements Serializable {
     private Paiment paiment;
 
     @OneToOne(mappedBy = "commande" , cascade = CascadeType.ALL)
-    @JsonIgnore
     private Facture facture;
 
 

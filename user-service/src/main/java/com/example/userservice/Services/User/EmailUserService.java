@@ -70,7 +70,8 @@ public class EmailUserService {
         String senderName = "Bridge Buyer";
 
         String mailContent = "<p> Someone has requested to reset your password with our project .If it were not you , please ignore it otherwise please click on the link below : </p>";
-        String verifyURL = "http://localhost:9999/USER-SERVICE/password-reset?token=" + token;
+        //String verifyURL = "http://localhost:9999/USER-SERVICE/password-reset?token=" + token;
+            String verifyURL = "http://localhost:4200/#/resetpassword/"+token;
 
         mailContent += "<h2><a href=" + verifyURL + ">Click this link to reset password</a></h2>";
 

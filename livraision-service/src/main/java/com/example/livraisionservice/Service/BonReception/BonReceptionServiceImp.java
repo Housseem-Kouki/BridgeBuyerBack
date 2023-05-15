@@ -26,7 +26,7 @@ public class BonReceptionServiceImp implements IBonReceptionService{
     public BonReception addBonReception(int idLivraison,BonReception b) {
         Livraison livraison = livraisonRepository.findById(idLivraison).orElse(null);
 
-        b.setLivraision(livraison);
+        b.setLivraison(livraison);
 
 
         return bonReceptionRepository.save(b);    }

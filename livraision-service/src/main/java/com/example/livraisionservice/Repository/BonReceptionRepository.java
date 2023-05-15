@@ -11,7 +11,7 @@ public interface BonReceptionRepository extends JpaRepository<BonReception, Inte
 
     //Affichage
     @Query("select br from BonReception br,Livraison l, Offre o, AppelOffre  aO,Commande c,DemandeAchat  d,User u " +
-            "where br.livraision.idLivraision=l.idLivraision "+
+            "where br.livraison.idLivraison=l.idLivraison "+
             "and l.commande.idCommande=c.idCommande "+
             "and o.appelOffre.idAppelOffre=aO.idAppelOffre " +
             "and d.iddemandeachat=aO.demandeAchat.iddemandeachat and d.acheteur.idUser=?1")

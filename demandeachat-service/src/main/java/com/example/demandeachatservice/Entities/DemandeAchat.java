@@ -23,6 +23,7 @@ public class DemandeAchat implements Serializable {
     private float budget ;
 
     @ManyToOne
+    @JsonIgnore
     private User acheteur;
 
     @ManyToMany(mappedBy = "demandeAchats" ,cascade = CascadeType.ALL , fetch = FetchType.EAGER)

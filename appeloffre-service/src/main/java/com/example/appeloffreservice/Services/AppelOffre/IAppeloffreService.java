@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface IAppeloffreService{
-    public AppelOffre addAndAssignAppelToDemande(AppelOffre appelOffre , int idD);
+    public AppelOffre addAndAssignAppelToDemande(AppelOffre appelOffre , int iddemandeachat);
     public AppelOffre updateAppelOffre(AppelOffre appelOffre);
     public void deleteAppelOffre(int id);
     public AppelOffre getAppelOffrebyId(int id);

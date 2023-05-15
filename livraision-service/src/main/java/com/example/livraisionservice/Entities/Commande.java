@@ -1,5 +1,6 @@
 package com.example.livraisionservice.Entities;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,7 +30,6 @@ public class Commande implements Serializable {
     private Paiment paiment;
 
     @OneToOne(mappedBy = "commande" , cascade = CascadeType.ALL)
-    @JsonIgnore
     private Facture facture;
 
 

@@ -29,9 +29,9 @@ public class DemandeAchatService implements IDemandeAchatService {
 
     IArticleService iArticleService;
 
-     NatureArticleRepository natureArticleRepository;
-     UniteArticleRepository uniteRepository;
-     AppelOffreRepository appelOffreRepository;
+    NatureArticleRepository natureArticleRepository;
+    UniteArticleRepository uniteRepository;
+    AppelOffreRepository appelOffreRepository;
     JavaMailSender mailSender;
     private final DepartementRepository departementRepository;
     private final UserRepository userRepository;
@@ -41,18 +41,19 @@ public class DemandeAchatService implements IDemandeAchatService {
     @Transactional
 
     public DemandeAchat addDemandeAchat(DemandeAchat d , Principal principal ) {
+        d.setEtatdemandeachat(0);
 
-        User user = userRepository.findByEmail(principal.getName());
+        User user = userRepository.findById(55).orElse(null);
         for (Article article : d.getArticles()){
             saveArticle(article, article.getNatureArticle().getIdnaturearticle(), article.getUniteArticle().getIdunitearticle());
-           // d.getArticles().add(article);
-           //  iArticleService.assignArticleToDemandeAchat(article.getIdarticle(),d.getIddemandeachat());
+            // d.getArticles().add(article);
+            //  iArticleService.assignArticleToDemandeAchat(article.getIdarticle(),d.getIddemandeachat());
             if (article.getDemandeAchats() == null) {
                 article.setDemandeAchats(new HashSet<>());
 
             }
             article.getDemandeAchats().add(d);
-           // articleRepository.save(article);
+            // articleRepository.save(article);
           /*  if (article.getDemandeAchats() == null) {
                 article.setDemandeAchats(new HashSet<>());
 
@@ -61,7 +62,7 @@ public class DemandeAchatService implements IDemandeAchatService {
         }
         d.setAcheteur(user);
 
-       // Article article = saveArticle(d, d.get, idUnite);
+        // Article article = saveArticle(d, d.get, idUnite);
         //User user =userRepository.findById(1).orElse(null) ;
 
         return demandeAchatRepository.save(d);
@@ -78,6 +79,21 @@ public class DemandeAchatService implements IDemandeAchatService {
         return articleRepository.save(article);
 
 
+    }
+    @Override
+    @Transactional
+    public DemandeAchat createDemandeAchat(DemandeAchat demandeAchat) {
+
+demandeAchat.setEtatdemandeachat(0);
+        Set<Article> articles = demandeAchat.getArticles();
+        Set<Article> managedArticles = new HashSet<>();
+        for (Article article : articles) {
+            Article managedArticle = articleRepository.findById(article.getIdarticle()).orElse(null);
+            managedArticle.getDemandeAchats().add(demandeAchat);
+            managedArticles.add(managedArticle);
+        }
+        demandeAchat.setArticles(managedArticles);
+        return demandeAchatRepository.save(demandeAchat);
     }
 
 
@@ -134,7 +150,7 @@ public class DemandeAchatService implements IDemandeAchatService {
 
     @Override
     public float BudgetDamandeAchat(int idDemande ) {
-      float  budgetTotal = 0;
+        float  budgetTotal = 0;
 
         DemandeAchat demandeAchat = demandeAchatRepository.findById(idDemande).orElse(null);
         for (Article a : demandeAchat.getArticles()) {
@@ -146,8 +162,10 @@ public class DemandeAchatService implements IDemandeAchatService {
 
     @Override
     public List<DemandeAchat> getDemandeAchatByUser() {
-        return demandeAchatRepository.findDemandeAchatsByAcheteur(1);
+        return demandeAchatRepository.findDemandeAchatsByAcheteur(55);
     }
+
+
 
     //-----------------------send email----------------------------
     public void sendSimpleEmail(String toEmail,

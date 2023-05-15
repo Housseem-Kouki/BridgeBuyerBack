@@ -1,31 +1,34 @@
 package com.example.emlacementservice.Service;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+
 import com.example.emlacementservice.Dto.MailRequest;
 import com.example.emlacementservice.Dto.MailResponse;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
+
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 
 @Service
 public class EmailService {
-	
+
 	@Autowired
 	private JavaMailSender sender;
-	
+
 	@Autowired
 	private Configuration config;
-	
+
 	public MailResponse sendEmail(MailRequest request, Map<String, Object> model) {
 		MailResponse response = new MailResponse();
 		MimeMessage message = sender.createMimeMessage();

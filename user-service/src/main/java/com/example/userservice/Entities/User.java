@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -35,7 +36,6 @@ public class User implements Serializable {
     private Emplacement emplacement;
 
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "responsableEmplacement")
-    @JsonIgnore
     private Set<Emplacement> emplacementsGeres;
 
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "acheteur")
@@ -47,15 +47,15 @@ public class User implements Serializable {
     @JsonIgnore
     private Set<DevisFourniseur> devisFourniseurs;
 
-
+private String phoneNumber;
 
     @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL)
-            @JsonIgnore
+    @JsonIgnore
     List<Reclamation> complaints;
 
-
-
-
-
-
+    @Temporal(TemporalType.DATE)
+    private Date createdAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastLogin;
+    private String image;
 }

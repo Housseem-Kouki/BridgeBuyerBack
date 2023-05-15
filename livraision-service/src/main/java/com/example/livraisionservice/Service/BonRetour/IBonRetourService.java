@@ -1,6 +1,7 @@
 package com.example.livraisionservice.Service.BonRetour;
 
 import com.example.livraisionservice.Entities.BonRetour;
+import com.example.livraisionservice.Entities.FactureAvoir;
 
 import java.util.List;
 
@@ -11,6 +12,6 @@ public interface IBonRetourService {
     public BonRetour getBonRetourById(int id);
     public List<BonRetour> getAllBonRetour();
     public List<BonRetour> SearchMultiple2(String key);
-    public BonRetour affecterFactureAvoirToBonRetour(int idFactureAvoir, int idBonRetour);
+    public FactureAvoir affecterFactureAvoirToBonRetour(FactureAvoir f, int idBonRetour);
     //public BonRetour updateEtat(BonRetour b);
 }

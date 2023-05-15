@@ -26,4 +26,5 @@ public class NatureArticle implements Serializable {
     @JsonIgnore
     private Set<Article> articles;
 
+
 }

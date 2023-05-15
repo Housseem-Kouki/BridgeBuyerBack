@@ -22,6 +22,8 @@ import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.AccessDeniedException;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -40,7 +42,7 @@ public class UserServiceImp implements IUserService {
         String pwd = u.getPassword();
         u.setPassword(passwordEncoder.encode(pwd));
         u.setEnabled(false);
-
+        u.setCreatedAt(Calendar.getInstance().getTime());
         Role r = u.getRole();
         Set<Privilege> affectedPrivileges = new HashSet<>();
 

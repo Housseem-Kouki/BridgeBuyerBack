@@ -19,7 +19,7 @@ public class FactureAvoirServiceImp implements IFactureAvoirService{
     @Override
     public FactureAvoir addFactureAvoir(FactureAvoir f,int idBonRetour) {
         BonRetour bonRetour = bonRetourRepository.findById(idBonRetour).orElse(null);
-       Commande commande = bonRetour.getBonReception().getLivraision().getCommande();
+       Commande commande = bonRetour.getBonReception().getLivraison().getCommande();
          f.setMontantTotal((float) commande.getPrixTotalAvecTaxe());
         f.setBonRetour(bonRetour);
         return factureAvoirRepository.save(f);

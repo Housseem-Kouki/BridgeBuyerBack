@@ -1,5 +1,6 @@
 package com.example.emlacementservice.Entities;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,7 +8,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -19,24 +24,26 @@ public class Emplacement implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idEmplacement ;
-
+    @NotBlank
+    @Size(max = 40)
     private String nomEmplacement ;
 
-
-    @OneToMany(cascade = CascadeType.ALL,mappedBy = "emplacement")
     @JsonIgnore
-    private Set<User> users;
+    @OneToMany(mappedBy = "emplacement" , cascade = CascadeType.ALL)
+    private List<User> users;
 
+    @JsonIgnore
     @ManyToOne
     private User responsableEmplacement;
 
-    @ManyToOne
-    private Devise devise;
+
+    private String devise;
 
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "departementEmplacement")
     @JsonIgnore
-    private Set<Departement> departements;
+    private List<Departement> departements;
 
+    @JsonIgnore
     @OneToOne
     private AdresseExpedition adresseExpedition;
 

@@ -68,9 +68,7 @@ public class DeviseService implements IDeviseService{
     @Override
     public Devise affecterDeviseToEmp(Devise d, Integer idE) {
         Emplacement emplacement=emplacementRepository.findById(idE).orElse(null);
-        if(d.getEmplacements() == null){
-            emplacement.setDevise(d);
-        }
+
 
 
        return DeviseRepository.save(d);

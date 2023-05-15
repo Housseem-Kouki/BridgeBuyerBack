@@ -27,13 +27,14 @@ public class AppeloffreServiceImp implements IAppeloffreService{
     private final PaimentRepository paimentRepository;
 
     @Override
-    public AppelOffre addAndAssignAppelToDemande(AppelOffre appelOffre ,int idD ) {
-        DemandeAchat demandeAchat=demandeAchatRepository.findById(idD).orElse(null);
+    public AppelOffre addAndAssignAppelToDemande(AppelOffre appelOffre ,int iddemandeachat ) {
+        DemandeAchat demandeAchat=demandeAchatRepository.findById(iddemandeachat).orElse(null);
         appelOffre.setPrixInitiale(demandeAchat.getBudget());
 
 
-       appelOffre.setDemandeAchat(demandeAchat);
+        appelOffre.setDemandeAchat(demandeAchat);
         appelOffre.getDemandeAchat().getArticles();
+        appelOffre.setEtat(0); // en cours
 
         return appelOffreRepository.save(appelOffre);
     }
@@ -128,7 +129,7 @@ public class AppeloffreServiceImp implements IAppeloffreService{
 
     @Override
     public void export(HttpServletResponse response , int idAppel) throws IOException {
-     //  List<AppelOffre> appelOffre=appelOffreRepository.findAll();
+        //  List<AppelOffre> appelOffre=appelOffreRepository.findAll();
         AppelOffre appelOffre=appelOffreRepository.findById(idAppel).orElse(null);
         Document document = new Document(PageSize.A4.rotate());
         PdfWriter.getInstance(document, response.getOutputStream());
@@ -161,8 +162,8 @@ public class AppeloffreServiceImp implements IAppeloffreService{
 
 
         document.close();
-         //AppelOffre(appelOffre.getCommentaire(),fontParagraph);
-        }
+        //AppelOffre(appelOffre.getCommentaire(),fontParagraph);
     }
+}
 
 

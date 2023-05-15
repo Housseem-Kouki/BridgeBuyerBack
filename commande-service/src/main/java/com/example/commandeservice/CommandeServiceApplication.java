@@ -9,7 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 @EnableFeignClients
-public class CommandeServiceApplication {
+public class    CommandeServiceApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(CommandeServiceApplication.class, args);

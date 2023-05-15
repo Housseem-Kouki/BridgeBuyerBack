@@ -1,9 +1,10 @@
 package com.example.emlacementservice.Service;
 
-import com.example.emlacementservice.Entities.AdresseExpedition;
-import com.example.emlacementservice.Entities.Emplacement;
 
 import java.util.List;
+
+import com.example.emlacementservice.Entities.AdresseExpedition;
+import org.springframework.data.repository.query.Param;
 
 public interface IAdresseExpeditionService {
     public AdresseExpedition addAdresseExpedition(AdresseExpedition AdresseExpedition);
@@ -11,9 +12,6 @@ public interface IAdresseExpeditionService {
     public void deleteAdresseExpedition(int id);
     public AdresseExpedition getAdresseExpeditionById(int id);
     public List<AdresseExpedition> getAllAdresseExpeditions();
-
-
-    AdresseExpedition affecterShippingAdresseToEmplac(AdresseExpedition ad, Integer ide);
-
-    List<AdresseExpedition> filterByPaysAndCite(String pays, String cite);
+    void affecterShippingAdresseToEmplac(Integer idS , Integer idA);
+    List<AdresseExpedition> filterByPaysAndCite(String pays , String cite);
 }

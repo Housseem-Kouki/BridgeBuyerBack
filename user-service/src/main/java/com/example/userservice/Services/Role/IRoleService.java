@@ -1,6 +1,8 @@
 package com.example.userservice.Services.Role;
 
+import com.example.userservice.Entities.Privilege;
 import com.example.userservice.Entities.Role;
+import com.example.userservice.Entities.User;
 
 import java.util.List;
 
@@ -16,5 +18,9 @@ public interface IRoleService {
 
 
     public Boolean AffectRoleToPrivilege(int idRole , int idPrivilege);
+
+
+    List<User> getListUsersByIdRole(int idRole);
+    List<Privilege> getListPrivilégesByIdRole(int idRole);
 
 }

@@ -19,6 +19,7 @@ public interface ILivraisonService {
     public List<Livraison> getLivraisonByFournisseur(Integer idUser);
 
     public void deleteLivraison(int id);
+
     public void restoreLivraison(int id);
     public Livraison updateLivraisonDate(int id, Date dateLivraison);
     public List<Livraison> sortLivraisonsByQuantity();
@@ -26,7 +27,8 @@ public interface ILivraisonService {
     public Livraison validerBL(int idLivraison) ;
     public List<Livraison> rechercheAvance(Integer quantiteDelivre, Date dateLivraison, String etat);
     // public void saveFile(int idLivraison, MultipartFile file);
+    //public List<Livraison> SearchMultiple(String key) ;
+
     public void export(HttpServletResponse response , int idLivraison) throws IOException;
-    public void uploadFile(MultipartFile file) throws IllegalStateException,IOException;
 
 }

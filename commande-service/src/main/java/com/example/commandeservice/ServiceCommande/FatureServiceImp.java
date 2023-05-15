@@ -9,6 +9,7 @@ import com.example.commandeservice.Repository.FactureRepository;
 import com.lowagie.text.*;
 import com.lowagie.text.Font;
 import com.lowagie.text.pdf.PdfWriter;
+import com.stripe.model.Customer;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +36,6 @@ public class FatureServiceImp implements  IFactureService{
     }
 
     @Override
-    @Transactional
     // operateur creation facture et assign to commande
     public Facture addFactureAndAssignToCommande(Facture facture, int idcommande) {
         double montantTotalCharge = 0 ,pourcentageTotalTaxe = 0 ,montantTotalAvecTaxe ;
@@ -44,6 +44,7 @@ public class FatureServiceImp implements  IFactureService{
         Set<Taxe> taxes = facture.getTaxes();
         facture.setCommande(commande);
         facture.setDateFacture(new Date());
+
         double montantTotalcmd= commande.getPrixTotalHorsTaxe();
         // taxe calcule par %
         for (ChargeFinanciere charge : charges) {
@@ -100,38 +101,65 @@ public class FatureServiceImp implements  IFactureService{
     @Override
     public void export(HttpServletResponse response , int idFacture) throws IOException {
         //  List<AppelOffre> appelOffre=appelOffreRepository.findAll();
-        Facture facture=factureRepository.findById(idFacture).orElse(null);
-        com.lowagie.text.Document document = new Document(PageSize.A4.rotate());
-        PdfWriter.getInstance(document, response.getOutputStream());
-        document.open();
-        Font fontTitle= FontFactory.getFont(FontFactory.COURIER_BOLD,Font.ITALIC);
-        fontTitle.setSize(25);
-        fontTitle.setColor(Color.PINK);
+        Facture facture = factureRepository.findByIdWithCommande(idFacture);
 
-        Paragraph paragraph =new Paragraph("Votre Appel d'offre \n \n", fontTitle);
-        paragraph.setAlignment(Paragraph.ALIGN_CENTER);
+        List<ChargeFinanciere> charges = factureRepository.findChargesByFactureId(idFacture);
+        List<Taxe> taxes = factureRepository.findTaxesByFactureId(idFacture);
+        if (facture.getCommande().getEtatCommande() == 2) {
 
-        Font fontParagraph = FontFactory.getFont(FontFactory.COURIER);
-        fontParagraph.setSize(18);
-        fontParagraph.setColor(Color.BLACK);
+            com.lowagie.text.Document document = new Document(PageSize.A4.rotate());
+            PdfWriter.getInstance(document, response.getOutputStream());
+            document.open();
+            Font fontTitle = FontFactory.getFont(FontFactory.COURIER_BOLD, Font.ITALIC);
+            fontTitle.setSize(25);
+            fontTitle.setColor(Color.PINK);
 
+            Paragraph paragraph = new Paragraph("Facture numero" + facture.getIdFacture() + "\n \n", fontTitle);
+            paragraph.setAlignment(Paragraph.ALIGN_CENTER);
 
-        Paragraph p1=new Paragraph("Commentaire du client:  "+facture.getIdFacture(), fontParagraph);
-        p1.setAlignment(Paragraph.ALIGN_LEFT);
-        Paragraph p2=new Paragraph("Prix initiale proposé par le client:  "+facture.getCommande().getPrixTotalAvecTaxe(), fontParagraph);
-        p2.setAlignment(Paragraph.ALIGN_LEFT);
-        Paragraph p3=new Paragraph("Prix initiale proposé par le client:  "+facture.getDescription(), fontParagraph);
-        p3.setAlignment(Paragraph.ALIGN_LEFT);
-        Paragraph p4=new Paragraph("Date de creation de l'appel d'offre:  "+facture.getDateFacture(), fontParagraph);
-        p4.setAlignment(Paragraph.ALIGN_LEFT);
-        document.add(paragraph);
-        document.add(p1);
-        document.add(p2);
-        document.add(p3);
-        document.add(p4);
+            Font fontParagraph = FontFactory.getFont(FontFactory.COURIER);
+            fontParagraph.setSize(18);
+            fontParagraph.setColor(Color.BLACK);
 
 
-        document.close();
+            Paragraph p1 = new Paragraph("Commentaire du client:  " + facture.getIdFacture(), fontParagraph);
+            p1.setAlignment(Paragraph.ALIGN_LEFT);
+
+
+            Paragraph p2 = new Paragraph("Prix initiale proposé par le client:  " + facture.getCommande().getPrixTotalAvecTaxe(), fontParagraph);
+            p2.setAlignment(Paragraph.ALIGN_LEFT);
+            Paragraph p6 = new Paragraph("Prix initiale proposé par le client:  " + facture.getCommande().getPrixTotalAvecTaxe(), fontParagraph);
+            p2.setAlignment(Paragraph.ALIGN_LEFT);
+            p2.setAlignment(Paragraph.ALIGN_LEFT);
+            Paragraph p3 = new Paragraph("Prix initiale proposé par le client:  " + facture.getDescription(), fontParagraph);
+            p3.setAlignment(Paragraph.ALIGN_LEFT);
+            Paragraph p4 = new Paragraph("Date de creation de l'appel d'offre:  " + facture.getDateFacture(), fontParagraph);
+            p4.setAlignment(Paragraph.ALIGN_LEFT);
+            document.add(paragraph);
+            document.add(p1);
+            document.add(p2);
+            document.add(p3);
+            document.add(p4);
+
+            for (Taxe taxe : taxes) {
+                Paragraph p5 = new Paragraph("Taxe " + taxe.getNomTaxe() + " (" + taxe.getTauxTaxe() + "%): " + (facture.getMontantFacture() * taxe.getTauxTaxe() / 100), fontParagraph);
+                p5.setAlignment(Paragraph.ALIGN_LEFT);
+                document.add(p5);
+            }
+
+            for (ChargeFinanciere charge : charges) {
+                Paragraph p7 = new Paragraph("Charge financière " + charge.getNomCharge() + ": " + charge.getMontantCharge(), fontParagraph);
+                p7.setAlignment(Paragraph.ALIGN_LEFT);
+                document.add(p7);
+            }
+            document.close();
+        } else
+        {
+
+            System.out.println("commande pas encore payer");
+
+        }
+
         //AppelOffre(appelOffre.getCommentaire(),fontParagraph);
     }
 }

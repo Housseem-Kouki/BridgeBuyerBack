@@ -15,16 +15,13 @@ public interface ICommandeService {
     public void deleteCommande(int id);
     public Commande getCommandeById(int id );
 
-    public List<Commande> getCommandeByUser(Principal principal);
+    public List<Commande> getCommandeByUser(int id);
     public List<Commande> getCommandeFournisuer(Principal principal);
 
     public List<Commande> getCommandeByEtat(int etat,Principal principal);
     public Commande addCommandeAndAssignOffre(Commande commande, int id);
+    public Commande annulerCommande(int id);
 
 
-
-
-
-
-
+    Commande reactiver(int idCommande);
 }

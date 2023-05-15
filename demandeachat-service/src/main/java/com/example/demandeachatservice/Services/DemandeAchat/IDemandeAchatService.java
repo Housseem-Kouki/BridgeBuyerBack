@@ -15,5 +15,6 @@ public interface IDemandeAchatService {
     public void AssignDemandeAchatToAppelOffre(int idDemande, int idAppel ) ;
     public float BudgetDamandeAchat( int idDemande ) ;
     public List<DemandeAchat> getDemandeAchatByUser() ;
+    public DemandeAchat createDemandeAchat(DemandeAchat demandeAchat) ;
 
 }

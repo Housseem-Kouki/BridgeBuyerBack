@@ -15,5 +15,6 @@ public interface IOffreService {
     public List<Offre> getOffreByEtat(int etat);
     public void assignofferToAppelOffre(int idAppeloffre, int idOffer);
     public List<Offre> findByCriteria(String commentaire, double prixOffre);
+    public Offre addoffre( Offre offre, int idDevisFourniseur);
 
 }

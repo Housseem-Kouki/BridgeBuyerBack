@@ -3,6 +3,7 @@ package com.example.userservice.Services.Privilege;
 
 
 import com.example.userservice.Entities.Privilege;
+import com.example.userservice.Entities.Role;
 
 import java.util.List;
 
@@ -17,4 +18,6 @@ public interface IPrivilegeService {
 
 
     public Privilege AssignPrivilegeToRole (int idPrivilege , int idRole);
+
+    public  List<Role> ListRoleByIdPrivilege(int idPrivilege);
 }

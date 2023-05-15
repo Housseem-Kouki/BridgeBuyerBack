@@ -27,7 +27,7 @@ public class DevicFournisseurServiceImp implements IDevisFournisseurService
 
     @Override
     public DevisFourniseur addDevisFourniseur(DevisFourniseur devisFourniseur) {
-     // Set<Article> ls=  devisFourniseur.getAppelOffre().getDemandeAchat().getArticles();
+        // Set<Article> ls=  devisFourniseur.getAppelOffre().getDemandeAchat().getArticles();
         return devisFourniseurRepository.save(devisFourniseur);
     }
 
@@ -59,10 +59,10 @@ public class DevicFournisseurServiceImp implements IDevisFournisseurService
     public DevisFourniseur comparerDevis(int id1 , int id2) {
         List<DevisFourniseur> df=devisFourniseurRepository.findByIds(id1,id2);
         DevisFourniseur df1=df.get(0);
-       DevisFourniseur df2=df.get(1);
-            if ((df1.getPtotal()<df2.getPtotal()) && (df1.getDelaiLivraison()<df2.getDelaiLivraison()) && (df1.isDisopnible() ) && (df1.getEtat()==1)){
-                return df1;
-            } if ((df1.getPtotal()<df2.getPtotal())  && (df1.isDisopnible() && (df1.getEtat()==1))){
+        DevisFourniseur df2=df.get(1);
+        if ((df1.getPtotal()<df2.getPtotal()) && (df1.getDelaiLivraison()<df2.getDelaiLivraison()) && (df1.isDisopnible() ) && (df1.getEtat()==1)){
+            return df1;
+        } if ((df1.getPtotal()<df2.getPtotal())  && (df1.isDisopnible() && (df1.getEtat()==1))){
             return df1;
         }
         if ((df1.getDelaiLivraison()<df2.getDelaiLivraison()&& (df1.isDisopnible() ) && (df1.getEtat()==1))){
@@ -71,9 +71,9 @@ public class DevicFournisseurServiceImp implements IDevisFournisseurService
         if ((df1.getPtotal()<df2.getPtotal()) && (df1.isDisopnible() ) && (df1.getEtat()==1)){
             return df2;
         }
-            else {
-                return null;
-            }
+        else {
+            return null;
+        }
     }
 
     @Override
@@ -90,18 +90,24 @@ public class DevicFournisseurServiceImp implements IDevisFournisseurService
     }
 
     @Override
+    public List<DevisFourniseur> getDevisfournisseurByIDAppel(int idAppelOffre) {
+
+        return devisFourniseurRepository.findDevisFourniseurByIdAppeloffre(idAppelOffre);
+    }
+
+    @Override
     public float calculremise(int id1 ,int idA, float pourcentageRemise) {
         float Ptotal = 0;
         DevisFourniseur devisFourniseur=devisFourniseurRepository.findById(id1).orElse(null);
         for (Article article : devisFourniseur.getAppelOffre().getDemandeAchat().getArticles() ){
             if(article.getIdarticle() == idA){
                 Ptotal =   article.getPrixestime() - (pourcentageRemise * article.getPrixestime() / 100);
-            article.setPrixestimeAvecRemise(Ptotal);
-            articleRepository.save(article);
+                article.setPrixestimeAvecRemise(Ptotal);
+                articleRepository.save(article);
             }
         }
-         devisFourniseurRepository.save(devisFourniseur);
-         return Ptotal;
+        devisFourniseurRepository.save(devisFourniseur);
+        return Ptotal;
 
 
     }
@@ -164,12 +170,24 @@ public class DevicFournisseurServiceImp implements IDevisFournisseurService
         devisFourniseur.setFourniseur(user);
         devisFourniseur.setAppelOffre(appelOffre);
         devisFourniseur.setPrixInitiale(appelOffre.getPrixInitiale());
-       return devisFourniseurRepository.save(devisFourniseur);
+        return devisFourniseurRepository.save(devisFourniseur);
+    }
+
+    @Override
+    public DevisFourniseur addDevisAndassignAppelToDevis(DevisFourniseur devisFourniseur, int idAppeloffre , int idUser) {
+        User user = userRepository.findById(idUser).orElse(null);
+        devisFourniseur.setFourniseur(user);
+        AppelOffre appelOffre =appelOffreRepository.findById(idAppeloffre).orElse(null);
+        devisFourniseur.setAppelOffre(appelOffre);
+
+        devisFourniseur.setPrixInitiale(appelOffre.getPrixInitiale());
+        devisFourniseur.setEtat(0); // devis en cours
+        return devisFourniseurRepository.save(devisFourniseur);
     }
 
     //@Override
     //@Scheduled(cron = "0 0 12 28 1/1  *")
-   /* @Scheduled(cron = "*///60 * * * * *")
+    /* @Scheduled(cron = "*///60 * * * * *")
    /* public void deleteExpiredOffer() {
         Date d = new Date();
         List<DevisFourniseur> offers = devisFourniseurRepository.findAll();

@@ -1,8 +1,10 @@
 package com.example.appeloffreservice.Services.AppelOffre;
 
 import com.example.appeloffreservice.Entities.AppelOffre;
+import com.example.appeloffreservice.Entities.DevisFourniseur;
 import com.example.appeloffreservice.Entities.Offre;
 import com.example.appeloffreservice.Repository.AppelOffreRepository;
+import com.example.appeloffreservice.Repository.DevisFourniseurRepository;
 import com.example.appeloffreservice.Repository.OffreRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,9 +17,11 @@ import java.util.stream.Collectors;
 public class OffreServiceImp implements IOffreService{
     OffreRepository offreRepository;
     AppelOffreRepository appelOffreRepository;
+    private final DevisFourniseurRepository devisFourniseurRepository;
 
     @Override
     public Offre addAndAssignOffreToAppel(Offre offre , int idA) {
+
         AppelOffre appelOffre=appelOffreRepository.findById(idA).orElse(null);
         offre.setPrixOffre(appelOffre.getPrixInitiale());
         appelOffre.setOffre(offre);
@@ -25,6 +29,20 @@ public class OffreServiceImp implements IOffreService{
 
         return offreRepository.save(offre);
     }
+    @Override
+    public Offre addoffre( Offre offre, int idDevisFourniseur) {
+        // Offre offre= new Offre();
+        DevisFourniseur devisFourniseur= devisFourniseurRepository.findById(idDevisFourniseur).orElse(null);
+
+        AppelOffre appelOffre=appelOffreRepository.findById(devisFourniseur.getAppelOffre().getIdAppelOffre()).orElse(null);
+        offre.setPrixOffre(devisFourniseur.getPrixInitiale());
+        appelOffre.setOffre(offre);
+        appelOffre.setEtat(1);// appeloffre acceptee
+        devisFourniseur.setEtat(1); // devis acceeptee
+
+        return offreRepository.save(offre);
+    }
+
 
     @Override
     public Offre updateOffre(Offre offre) {
@@ -33,7 +51,7 @@ public class OffreServiceImp implements IOffreService{
 
     @Override
     public void deleteOffre(int id) {
-     offreRepository.deleteById(id);
+        offreRepository.deleteById(id);
     }
 
     @Override

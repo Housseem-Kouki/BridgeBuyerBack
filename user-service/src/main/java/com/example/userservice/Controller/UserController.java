@@ -4,11 +4,14 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.example.userservice.DataMining.DataGenerator;
 import com.example.userservice.Entities.Privilege;
 import com.example.userservice.Entities.Role;
 import com.example.userservice.Entities.User;
 import com.example.userservice.Entities.VerificationToken;
+import com.example.userservice.Model.LoginRequest;
 import com.example.userservice.Model.PasswordResetModel;
+import com.example.userservice.Repository.UserRepository;
 import com.example.userservice.Security.JWTUtil;
 import com.example.userservice.Services.Privilege.IPrivilegeService;
 import com.example.userservice.Services.Role.IRoleService;
@@ -16,14 +19,31 @@ import com.example.userservice.Services.User.IUserService;
 import com.example.userservice.Services.User.VerificationTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
+import lombok.Value;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.springframework.core.ResolvableType;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.security.Principal;
 import java.sql.Timestamp;
@@ -34,6 +54,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @CrossOrigin(origins = "*")
 public class UserController {
+
+
 IUserService iUserService;
 IPrivilegeService iPrivilegeService;
 IRoleService iRoleService;
@@ -45,6 +67,84 @@ VerificationTokenService verificationTokenService;
         return "bills hello from microservices user !";
 
     }
+    AuthenticationManager authenticationManager;
+
+
+
+    @PostMapping("/upload/{userId}")
+    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile file ,@PathVariable("userId")int userId ){
+        if (file.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Image file is required.");
+        }
+        try {
+            User user = iUserService.getUserById(userId);
+
+            // Enregistrement du fichier dans le dossier de stockage
+            String fileName = file.getOriginalFilename();
+            String filename = file.getOriginalFilename();
+            String newFileName = FilenameUtils.getBaseName(filename)+"."+FilenameUtils.getExtension(filename);
+           // File serverFile = new File (context.getRealPath("/Images/"+File.separator+newFileName));
+            user.setImage(fileName);
+            File targetFile = new File("C:/Users/Kouki/Desktop/pi final/piFront-master/src/assets/upload", fileName);
+            FileOutputStream outputStream = new FileOutputStream(targetFile);
+            IOUtils.copy(file.getInputStream(), outputStream);
+            outputStream.close();
+
+            // Logique pour insérer le chemin de l'image dans la base de données
+            // Insérez ici votre code pour enregistrer le chemin de l'image dans votre entité User ou toute autre entité pertinente
+
+            return ResponseEntity.ok("Image uploaded successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload image.");
+        }
+
+    }
+    @PostMapping("/signin")
+    public void authenticateUser(HttpServletRequest request,HttpServletResponse response,@RequestBody LoginRequest requestlogin)throws IOException {
+
+        Authentication authentication = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(requestlogin.getEmail(), requestlogin.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        //j'ai l'ajouter car j'ai besoin aussi le role d'aprés simple objet user
+
+        org.springframework.security.core.userdetails.User user =(org.springframework.security.core.userdetails.User) authentication.getPrincipal();
+        com.example.userservice.Entities.User user1 = iUserService.laodUserByUserName(user.getUsername());
+        user1.setLastLogin(Calendar.getInstance().getTime());
+        Algorithm algorithm = Algorithm.HMAC256(JWTUtil.SECRET);
+        String jwtAccessToken = JWT.create()
+                .withSubject(user.getUsername())
+                //sexpire dans 5min en millissecondes
+                .withExpiresAt(new Date(System.currentTimeMillis()+ JWTUtil.EXP_ACCESS_TOKEN))
+                //nom de l'app qui a gérer le token (on va mettre url de la requete)
+                .withIssuer(request.getRequestURL().toString())
+                //convertit la liste des authoritys de lobjet user spring en liste de priviléges
+                .withClaim("privileges",user.getAuthorities().stream().map(ga->ga.getAuthority()).collect(Collectors.toList()))
+                .withClaim("role",user1.getRole().getRoleName())
+                .sign(algorithm);
+
+        String jwtRefreshToken = JWT.create()
+                .withSubject(user.getUsername())
+                //sexpire dans 15 min en millissecondes plus long que acces
+                .withExpiresAt(new Date(System.currentTimeMillis()+JWTUtil.EXP_REFRESH_TOKEN))
+                //nom de l'app qui a gérer le token (on va mettre url de la requete)
+                .withIssuer(request.getRequestURL().toString())
+                .sign(algorithm);
+
+        Map<String , String> idToken = new HashMap<>();
+        idToken.put("accessToken",jwtAccessToken);
+        idToken.put("refreshToken",jwtRefreshToken);
+        response.setHeader(JWTUtil.AUTH_HEADER,jwtAccessToken);
+
+        response.setContentType("application/json");
+        //pour serialiser un objet en json avec entrer et sortie
+        new ObjectMapper().writeValue(response.getOutputStream(),idToken);
+        //renvoie dans un objet json dans le body
+        // String jsonResponse = "{\"token\":\"" + jwtAccessToken + "\"}";
+        //response.getOutputStream().write(jsonResponse.getBytes());
+
+    }
+
 
     @GetMapping("/requestPasswordReset/{email}")
     public Response requestPasswordReset(@PathVariable("email") String email) throws Exception {
@@ -58,8 +158,9 @@ VerificationTokenService verificationTokenService;
 
     @GetMapping("/AllUsers")
     @ResponseBody
-    @PostAuthorize("hasAnyAuthority('Consulter User')")
     public List<User> getAllUsers(){
+
+        System.out.println("houni allll user");
         return iUserService.getAllUsers();
     }
 
@@ -88,15 +189,9 @@ VerificationTokenService verificationTokenService;
 
     @GetMapping("/getUserById/{id}")
     @ResponseBody
-    public  Response  getUserById(@PathVariable("id") int id){
+    public  User  getUserById(@PathVariable("id") int id){
 
-        User user = iUserService.getUserById(id);
-        if (user == null){
-            return Response.status(Response.Status.NOT_FOUND).entity("aucun user existe avec l'id : "+id).build();
-        }else {
-            return Response.status(Response.Status.OK).entity(user).build();
-
-        }
+       return iUserService.getUserById(id);
 
     }
 
@@ -264,6 +359,7 @@ VerificationTokenService verificationTokenService;
     }
     @PostMapping("/addRoleAddRoleWithPrivilege")
     public Role AddRoleWithPrivilege(@RequestBody Role role) {
+
         return iRoleService.AddRoleWithPrivilege(role);
     }
     @GetMapping("/AllRoles")
@@ -354,5 +450,34 @@ VerificationTokenService verificationTokenService;
         return iUserService.laodUserByUserName(email);
     }
 
+
+
+    private static String authorizationRequestBaseUri
+            = "oauth2/authorization";
+    Map<String, String> oauth2AuthenticationUrls
+            = new HashMap<>();
+
+
+    private ClientRegistrationRepository clientRegistrationRepository;
+
+    @GetMapping("/oauth_login")
+    public String getLoginPage(Model model) {
+        // ...
+
+        return "oauth_login";
+    }
+
+    @GetMapping("/getListUsersByIdRole/{id}")
+    public List<User> getListUsersByIdRole(@PathVariable("id") int idRole) {
+        return iRoleService.getListUsersByIdRole(idRole);
+    }
+    @GetMapping("/getListPrivilegesByIdRole/{id}")
+    public List<Privilege> getListPrivilégesByIdRole(@PathVariable("id")int idRole) {
+        return iRoleService.getListPrivilégesByIdRole(idRole);
+    }
+    @GetMapping("/ListRoleByIdPrivilege/{id}")
+    public List<Role> ListRoleByIdPrivilege(@PathVariable("id")int idPrivilege) {
+        return iPrivilegeService.ListRoleByIdPrivilege(idPrivilege) ;
+    }
 
 }

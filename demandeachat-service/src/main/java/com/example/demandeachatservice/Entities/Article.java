@@ -37,7 +37,7 @@ public class Article implements Serializable {
     private NatureArticle natureArticle;
 
     @OneToMany(mappedBy = "article")
-    @JsonIgnore
+
     private Set<Comment> comments;
 
 

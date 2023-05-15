@@ -14,51 +14,47 @@ import java.util.List;
 @AllArgsConstructor
 public class AdresseExpeditionServiceImp implements IAdresseExpeditionService {
 
-AdresseExpeditionRepository AdresseExpeditionRepository;
-EmplacementRepository emplacementRepository;
+    AdresseExpeditionRepository adresseExpeditionRepository;
+    EmplacementRepository emplacementRepository;
 
     @Override
     public AdresseExpedition addAdresseExpedition(AdresseExpedition AdresseExpedition) {
-        return AdresseExpeditionRepository.save(AdresseExpedition);
+        return adresseExpeditionRepository.save(AdresseExpedition);
     }
 
     @Override
     public AdresseExpedition updateAdresseExpedition(AdresseExpedition AdresseExpedition) {
-        return AdresseExpeditionRepository.save(AdresseExpedition);
+        return adresseExpeditionRepository.save(AdresseExpedition);
     }
 
     @Override
     public void deleteAdresseExpedition(int id) {
-        AdresseExpeditionRepository.deleteById(id);
+        adresseExpeditionRepository.deleteById(id);
     }
 
     @Override
     public AdresseExpedition getAdresseExpeditionById(int id) {
-        return AdresseExpeditionRepository.findById(id).orElse(null);
+        return adresseExpeditionRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<AdresseExpedition> getAllAdresseExpeditions() {
-        return AdresseExpeditionRepository.findAll();
+        return adresseExpeditionRepository.findAll();
     }
 
-	@Override
-	public AdresseExpedition affecterShippingAdresseToEmplac(AdresseExpedition ad, Integer ide) {
-        Emplacement e =emplacementRepository.findById(ide).orElse(null);
-        if(e.getAdresseExpedition() == null){
-            e.setAdresseExpedition(ad);
-        }
+    @Override
+    public void affecterShippingAdresseToEmplac(Integer idS, Integer idA) {
+        Emplacement emplacement=emplacementRepository.findById(idA).get();
+        AdresseExpedition adresseExpedition=adresseExpeditionRepository.findById(idS).get();
+        adresseExpedition.setEmplacement(emplacement);
+        adresseExpeditionRepository.save(adresseExpedition);
 
 
-        return AdresseExpeditionRepository.save(ad);
+    }
 
-
-	}
     @Override
     public List<AdresseExpedition> filterByPaysAndCite(String pays, String cite) {
         // TODO Auto-generated method stub
-        return AdresseExpeditionRepository.findByPaysAndCite(pays, cite);
+        return adresseExpeditionRepository.findByPaysAndCite(pays, cite);
     }
-
 }
-

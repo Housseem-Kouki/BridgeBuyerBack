@@ -14,7 +14,8 @@ public interface CommandeRepository extends JpaRepository<Commande, Integer> {
             "where   o.appelOffre.idAppelOffre=aO.idAppelOffre " +
             "and  c.idCommande=o.commande.idCommande " +
             "and d.iddemandeachat=aO.demandeAchat.iddemandeachat  " +
-            "and d.acheteur.idUser=?1 and c.etatCommande=1")
+            "and d.acheteur.idUser=?1 " +
+            "group by (c.idCommande)")
     public List<Commande> getCommandeByUser(Integer idUser);
 
 

@@ -27,7 +27,7 @@ public class BonReception implements Serializable {
     private String etat;
     private boolean archive;
     @OneToOne
-    private Livraison livraision;
+    private Livraison livraison;
 
     @JsonIgnore
     @OneToOne(mappedBy = "bonReception" , cascade = CascadeType.ALL)

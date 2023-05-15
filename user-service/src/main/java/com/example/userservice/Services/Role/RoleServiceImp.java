@@ -3,14 +3,17 @@ package com.example.userservice.Services.Role;
 
 import com.example.userservice.Entities.Privilege;
 import com.example.userservice.Entities.Role;
+import com.example.userservice.Entities.User;
 import com.example.userservice.Repository.PrivilegeRepository;
 import com.example.userservice.Repository.RoleRepository;
+import com.example.userservice.Repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -19,6 +22,7 @@ public class RoleServiceImp implements IRoleService {
 
 RoleRepository roleRepository;
 PrivilegeRepository privilegeRepository;
+UserRepository userRepository;
 
     @Override
     public Role addRole(Role role) {
@@ -26,7 +30,31 @@ PrivilegeRepository privilegeRepository;
     }
 
     @Override
+    @Transactional
     public Role updateRole(Role role) {
+        Set<Privilege> managedPrivileges = new HashSet<>();
+        for (Privilege p : role.getPrivileges()){
+            Privilege managedPrivilege = privilegeRepository.findById(p.getIdPrivilege()).orElse(null);
+            System.out.println(managedPrivilege.getPrivilegeName());
+            managedPrivilege.getRoles().add(role);
+            managedPrivileges.add(managedPrivilege);
+            //privilegeRepository.save(managedPrivilege);
+        }
+        role.setPrivileges(null);
+
+        role.setPrivileges(managedPrivileges);
+        /*
+        Set<Privilege> privileges = role.getPrivileges();
+        Set<Privilege> managedPrivileges = new HashSet<>();
+        for (Privilege privilege : privileges) {
+            Privilege managedPrivilege = privilegeRepository.findById(privilege.getIdPrivilege()).orElse(null);
+            managedPrivilege.getRoles().add(role);
+            managedPrivileges.add(managedPrivilege);
+            privilegeRepository.save(managedPrivilege);
+        }
+        */
+
+       // role.setPrivileges(managedPrivileges);
         return roleRepository.save(role);
     }
 
@@ -48,21 +76,14 @@ PrivilegeRepository privilegeRepository;
     @Override
     @Transactional
     public Role AddRoleWithPrivilege(Role role) {
-
-      //  for (Privilege privilege : role.getPrivileges()){
-       //     System.out.println(privilege.getPrivilegeName()+"ssssssssssssssssss");
-         //   Privilege p = privilegeRepository.findById(privilege.getIdPrivilege()).orElse(null);
-          //  if (privilege.getRoles() == null) {
-            //    privilege.setRoles(new HashSet<>());
-
-            //}
-           //  roleRepository.save(role);
-          //  Role r = roleRepository.findById(role.getIdRole()).orElse(null);
-           // r.getPrivileges().addAll(role.getPrivileges());
-                //privilege.getRoles().add(role);
-             //   privilegeRepository.save(privilege);
-
-        //}
+        Set<Privilege> privileges = role.getPrivileges();
+        Set<Privilege> managedPrivileges = new HashSet<>();
+        for (Privilege privilege : privileges) {
+            Privilege managedPrivilege = privilegeRepository.findById(privilege.getIdPrivilege()).orElse(null);
+            managedPrivilege.getRoles().add(role);
+            managedPrivileges.add(managedPrivilege);
+        }
+        role.setPrivileges(managedPrivileges);
         return roleRepository.save(role);
         }
 
@@ -82,6 +103,17 @@ PrivilegeRepository privilegeRepository;
 
     }
 
+    @Override
+    public List<User> getListUsersByIdRole(int idRole) {
+        List<User> users = userRepository.findUsersByRoleIdRole(idRole);
+        return users;
+    }
+
+    @Override
+    public List<Privilege> getListPrivilégesByIdRole(int idRole) {
+        List<Privilege> privileges = privilegeRepository.findPrivilegesByRoleId(idRole);
+        return privileges;
+    }
 
 
 }

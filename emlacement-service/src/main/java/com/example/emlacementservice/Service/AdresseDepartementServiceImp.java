@@ -2,9 +2,7 @@ package com.example.emlacementservice.Service;
 
 
 import com.example.emlacementservice.Entities.AdresseDepartement;
-import com.example.emlacementservice.Entities.Departement;
 import com.example.emlacementservice.Repository.AdresseDepartementRepository;
-import com.example.emlacementservice.Repository.DepartementRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +13,6 @@ import java.util.List;
 public class AdresseDepartementServiceImp implements IAdresseDepartementService {
 
     AdresseDepartementRepository AdresseDepartementRepository;
-    private final DepartementRepository departementRepository;
 
     @Override
     public AdresseDepartement addAdresseDepartement(AdresseDepartement u) {
@@ -41,27 +38,4 @@ public class AdresseDepartementServiceImp implements IAdresseDepartementService 
     public List<AdresseDepartement> getAllAdresseDepartements() {
         return AdresseDepartementRepository.findAll();
     }
-
-    @Override
-    public List<AdresseDepartement> filterByDepAndCode(String dep, String c) {
-        // TODO Auto-generated method stub
-        return AdresseDepartementRepository.findByDepAndCode(dep,c);
-    }
-    @Override
-    public AdresseDepartement affecterAdresseDepartementToDepartement(AdresseDepartement ad, Integer idD) {
-        Departement d=departementRepository.findById(idD).orElse(null);
-        if(d.getAdresseDepartement() == null){
-            d.setAdresseDepartement(ad);
-        }
-
-
-        return AdresseDepartementRepository.save(ad);
-
-
-
-    }
-
-
-
-
 }

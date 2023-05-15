@@ -18,9 +18,10 @@ import java.util.List;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/Commandes")
+@CrossOrigin(origins = "*")
 public class CommandeController {
 
-UserRepository userRepository;
+    UserRepository userRepository;
     ICommandeService iCommandeService;
     ITaxeService    iTaxeService;
     IPaimentService iPaimentService;
@@ -31,6 +32,7 @@ UserRepository userRepository;
     //---------------------------- Commande --------------------------------------//
 
     // operateur get all commandes
+    //
     @GetMapping("/getAllCommandes")
     public List<Commande> getAllCommandes(){
         return iCommandeService.getAllCommandes();
@@ -41,37 +43,43 @@ UserRepository userRepository;
     @PostMapping("/addCommandeAndAssignToOffre/{id}")
     @ResponseBody
     public Commande addCommandeAndAssignOffre(@RequestBody Commande c,@PathVariable("id") int id) {
-
-
         return iCommandeService.addCommandeAndAssignOffre(c,id);
     }
+    // operateur peux changer les commande
     @PutMapping("/updateCommande")
     @ResponseBody
     public Commande updateCommande( @RequestBody Commande c) {
         return iCommandeService.updateCommande(c);
     }
+
+    //Operateur supprimer les commandes
     @DeleteMapping("/deleteCommande/{id}")
     public void deleteCommande( @PathVariable("id") int id) {
         iCommandeService.deleteCommande(id);
 
     }
+    // details commandes pour Acheteur
     @GetMapping("/getCommandeById/{id}")
     public Commande getCommandeById( @PathVariable("id") int id) {
         return iCommandeService.getCommandeById(id);
 
     }
+    // les commande leier a acheteur connecter
 
-    @GetMapping("/getCommandeByUser")
-    public List<Commande> getCommandeByUser(Principal principal){
-        return iCommandeService.getCommandeByUser(principal);
+    @GetMapping("/getCommandeByUser/{id}")
+    public List<Commande> getCommandeByUser( @PathVariable("id") int id){
+        return iCommandeService.getCommandeByUser(id);
 
     }
+// commande fournisseur lier a ces devis
 
     @GetMapping("/getCommandeFournisuer")
+    @CrossOrigin(origins = "*")
     public List<Commande> getCommandeFournisuer(Principal principal){
         return iCommandeService.getCommandeFournisuer(principal);
 
     }
+    // getCommande By etat filttrage
     @GetMapping("/getCommandeByEtat/{etat}")
     public List<Commande> getCommandeByEtatFourniseur(@PathVariable("etat") int etat,Principal principal){
         return iCommandeService.getCommandeByEtat(etat,principal);
@@ -139,9 +147,12 @@ UserRepository userRepository;
 
 
     }
+
+    // marche cote operateur
     @PostMapping("/addFactureAndAssignToCommande/{idcommande}")
     @ResponseBody
     public Facture addFactureAndAssignToCommande(@RequestBody Facture f, @PathVariable("idcommande") int idcommande  ){
+
         return iFactureService.addFactureAndAssignToCommande(f,idcommande);
     }
     @PutMapping("/updateFacture")
@@ -180,13 +191,14 @@ UserRepository userRepository;
         iChargeService.deleteChargeFinanciere(id);
 
     }
+
     @GetMapping("/getChargeFinanciereById/{id}")
     public ChargeFinanciere getChargeFinanciereById( @PathVariable("id") int id) {
         return iChargeService.getChargeFinanciereById(id);
 
     }
 
-
+    // operateur/fourniseur
     @GetMapping("/pdf/generate/{idFacture}")
     public void generatePdf(HttpServletResponse response , @PathVariable("idFacture") int idFacture) throws IOException {
 
@@ -198,6 +210,15 @@ UserRepository userRepository;
         response.setHeader(headerkey, headerValue);
         this.iFactureService.export(response,idFacture);
     }
+    // operateur
+    @PutMapping("/annulerCommande/{idCommande}")
+    public Commande annulerCommande( @PathVariable("idCommande") int idCommande) {
+        return  iCommandeService.annulerCommande(idCommande);
+    }
 
-
+    // sa marche cote operateur seul
+    @PutMapping("/reactiver/{idCommande}")
+    public Commande reactiver( @PathVariable("idCommande") int idCommande) {
+        return  iCommandeService.reactiver(idCommande);
+    }
 }

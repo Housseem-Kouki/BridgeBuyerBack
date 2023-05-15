@@ -36,7 +36,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
               //  .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
               //  .antMatchers("/login", "/refreshToken", "/activation").permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
                 .and()
                 .httpBasic()
                 .and()

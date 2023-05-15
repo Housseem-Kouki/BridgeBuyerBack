@@ -22,7 +22,10 @@ public class Privilege implements Serializable {
     private String privilegeName ;
 
 
-    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @ManyToMany(cascade = CascadeType.ALL)
     @JsonIgnore
     private Set<Role> roles;
+
+
+    private String privilegecategorie;
 }

@@ -11,9 +11,9 @@ import java.security.Principal;
 import java.util.List;
 
 public interface ICommentService {
-    void AddAffectCommentList(Comment comment, int idArticle , Principal principal) throws IOException;
+    Comment AddAffectCommentList(Comment comment, int idArticle , Principal principal) throws IOException;
 
-    Comment updateComment (Comment comment,  int idArticle , Principal principal);
+    Comment updateComment (Comment comment , Principal principal);
 
     List<Comment> getAllComments();
 
@@ -25,6 +25,7 @@ public interface ICommentService {
 
     List<ReactComment> findAllByIdCommentAndEmoji(int idComment, React react);
     Integer  countAllByIdComment(int idComment) ;
+    public Comment getCommentById(int id);
 
 
 }

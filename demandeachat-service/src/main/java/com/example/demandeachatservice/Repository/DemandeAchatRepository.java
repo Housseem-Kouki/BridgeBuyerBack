@@ -8,7 +8,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface DemandeAchatRepository extends JpaRepository<DemandeAchat, Integer> {
+    @Query("select d from DemandeAchat d where d.etatdemandeachat = :etat")
     DemandeAchat findByEtatdemandeachat(@Param("etat") int etat );
-    @Query("select d from DemandeAchat d , User u where d.acheteur.idUser=u.idUser")
-    List<DemandeAchat> findDemandeAchatsByAcheteur(@Param("idUser") int idUser) ;
+    @Query("select d from DemandeAchat d where d.acheteur.idUser=:idUser")
+    List<DemandeAchat> findDemandeAchatsByAcheteur( int idUser) ;
 }

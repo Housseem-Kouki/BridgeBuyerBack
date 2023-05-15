@@ -1,13 +1,12 @@
 package com.example.livraisionservice.Service;
 
 import com.example.livraisionservice.Entities.BonReception;
+import com.example.livraisionservice.Entities.BonRetour;
 import com.example.livraisionservice.Entities.Commande;
 import com.example.livraisionservice.Entities.Livraison;
-import com.example.livraisionservice.Repository.BonReceptionRepository;
-import com.example.livraisionservice.Repository.BonRetourRepository;
-import com.example.livraisionservice.Repository.CommandeRepository;
-import com.example.livraisionservice.Repository.LivraisonRepository;
+import com.example.livraisionservice.Repository.*;
 import com.lowagie.text.Font;
+
 import com.lowagie.text.pdf.PdfWriter;
 import com.lowagie.text.*;
 import lombok.AllArgsConstructor;
@@ -40,11 +39,10 @@ public class LivraisonServiceImp implements ILivraisonService {
         Commande commande=commandeRepository.findById(idCommande).orElse(null);
 
 
-        if (commande.getEtatCommande()==2){ // 2 commande payer
+
             l.setCommande(commande);
-            return livraisonRepository.save(l);
-        }
-        return null;
+
+        return livraisonRepository.save(l);
     }
     //Consuleter bon de livraison
     //opérateur
@@ -68,11 +66,6 @@ public class LivraisonServiceImp implements ILivraisonService {
     public List<Livraison> getLivraisonByFournisseur(Integer idUser) {
         return  livraisonRepository.getLivraisonByFournisseur(idUser);
     }
-
-
-
-    //search
-
 
     //Delete Bon de livraison avec archivage
     @Override
@@ -138,9 +131,16 @@ public class LivraisonServiceImp implements ILivraisonService {
                 .filter(livraison -> etat == null || livraison.getEtat().contains(etat))
                 .collect(Collectors.toList());
     }
+    /*@Override
+    public List<Livraison> SearchMultiple(String key) {
+        if (key.equals("")) {
+            return (List<Livraison>) livraisonRepository.findAll();
+        } else {
+            return livraisonRepository.recherche(key);
+        }
+    }*/
 
-
-    //PDF
+    //PDFc
     @Override
     public void export(HttpServletResponse response , int idLivraison) throws IOException {
         Livraison livraison=livraisonRepository.findById(idLivraison).orElse(null);
@@ -179,10 +179,7 @@ public class LivraisonServiceImp implements ILivraisonService {
     }
 
     //upload file
-    @Override
-    public void uploadFile(MultipartFile file) throws IllegalStateException,IOException{
-        file.transferTo(new File("C:\\Users\\farah\\.m2\\repository\\com\\example\\PiDev\\4sae8-softwarechasers-software-chasers\\src\\main\\java\\com\\example\\bridgebuyerbackend\\upload"+file.getOriginalFilename()));
-    }
+
 
 
 

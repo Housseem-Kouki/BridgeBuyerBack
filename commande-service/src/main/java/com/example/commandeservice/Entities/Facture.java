@@ -27,6 +27,7 @@ public class Facture implements Serializable {
     private  Emplacement emplacement;
 
     @OneToOne
+    @JsonIgnore
     private  Commande commande;
 
     @ManyToMany(mappedBy = "factures" ,cascade = CascadeType.ALL , fetch = FetchType.EAGER)

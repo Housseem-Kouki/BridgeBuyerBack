@@ -10,11 +10,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.Date;
 import java.util.List;
 @Service
 @AllArgsConstructor
 public class CommandeServiceImp implements ICommandeService{
-UserRepository userRepository;
+    UserRepository userRepository;
 
     CommandeRepository commandeRepository;
     OffreRepository offreRepository;
@@ -33,8 +34,40 @@ UserRepository userRepository;
         Offre offre = offreRepository.findById(id).orElse(null);
         commande.setPrixTotalHorsTaxe(offre.getPrixOffre());
         commande.setEtatCommande(0);
+        commande.setCreationCommande(new Date());
         offre.setEtat(1); //  offre accepter
         commande.setOffre(offre);
+
+        return commandeRepository.save(commande);
+    }
+
+    @Override
+    public Commande annulerCommande(int id) {
+        Commande commande=commandeRepository.findById(id).orElse(null);
+        commande.setEtatCommande(4);
+
+        return commandeRepository.save(commande);
+
+    }
+
+    @Override
+    public Commande reactiver(int idCommande) {
+        Commande commande=commandeRepository.findById(idCommande).orElse(null);
+        if(commande.getPaiment()!=null ) {
+            commande.setEtatCommande(2);
+        }else if (commande.getFacture()!=null) {
+
+            commande.setEtatCommande(1);
+        }
+        else
+            commande.setEtatCommande(0);
+        {
+
+
+        }
+
+
+
 
         return commandeRepository.save(commande);
     }
@@ -56,9 +89,12 @@ UserRepository userRepository;
         return commandeRepository.findById(id).orElse(null);
     }
     @Override
-    public List<Commande> getCommandeByUser(Principal principal) {
-        User user = userRepository.findByEmail(principal.getName());
+    public List<Commande> getCommandeByUser(int id ) {
+
+        User user = userRepository.findById(id).orElse(null);
+
         return commandeRepository.getCommandeByUser(user.getIdUser());
+
     }
 
     @Override

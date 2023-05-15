@@ -23,6 +23,7 @@ public class ReactComment implements Serializable {
     private React react ;
 
     @ManyToOne
+    @JsonIgnore
     private Comment comments ;
     @OneToOne
     @JsonIgnore

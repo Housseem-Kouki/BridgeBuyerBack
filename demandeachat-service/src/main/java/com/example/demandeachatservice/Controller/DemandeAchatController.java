@@ -77,8 +77,8 @@ public class DemandeAchatController {
     @PostMapping("/addDemandeAchat")
     @ResponseBody
     public DemandeAchat addDemandeAchat (@RequestBody DemandeAchat d, Principal principal ){
-       iSendEmailService.sendSimpleEmail("elkhater.elkharouf@esprit.tn","your Purshase Request is taken care of!","Purs" +
-               "hase Request Response");
+        iSendEmailService.sendSimpleEmail("elkhater.elkharouf@esprit.tn","your Purshase Request is taken care of!","Purs" +
+                "hase Request Response");
         return iDemandeAchatService.addDemandeAchat(d , principal );
     }
 
@@ -114,7 +114,7 @@ public class DemandeAchatController {
     @PutMapping("/updateDemandeAchat")
     private DemandeAchat updateDemandeAchat(@RequestBody DemandeAchat d)
     {
-       return iDemandeAchatService.updateDemandeAchat(d);
+        return iDemandeAchatService.updateDemandeAchat(d);
 
     }
     @PostMapping("AssignDemandeAchatToAppelOffre/{idDemande}/{idAppel}")
@@ -126,15 +126,20 @@ public class DemandeAchatController {
     public String etatDemandeAchat(@PathVariable("idDemande") int idDemande , @PathVariable("idAppel") int idAppel , Principal principal){
         return iDemandeAchatService.etatDemandeAchat(idDemande,idAppel , principal);
     }
-@PostMapping("/budget/{idDemande}")
+    @PostMapping("/budget/{idDemande}")
     public float BudgetDamandeAchat(@PathVariable("idDemande") int idDemande){
         return iDemandeAchatService.BudgetDamandeAchat(idDemande);
 
-}
-@GetMapping("/getDemandeAchatByUser")
+    }
+    @GetMapping("/getDemandeAchatByUser")
     public List<DemandeAchat> getDemandeAchatByUser(){
         return iDemandeAchatService.getDemandeAchatByUser();
-}
+    }
+
+    @PostMapping("CreateDemandeAchat")
+    public DemandeAchat createDemandeAchat(@RequestBody DemandeAchat demandeAchat) {
+        return iDemandeAchatService.createDemandeAchat(demandeAchat ) ;}
+
     //////////////////////////////////////////////////////////////////////
     @GetMapping ("/AllNatureArticle")
     @ResponseBody
@@ -176,6 +181,11 @@ public class DemandeAchatController {
 
 
     //////////////////////////////////////////////////////////////////
+    @GetMapping ("/getAllArticleByIdDemandeAchat/{idDemande}")
+    @ResponseBody
+    public List<Article> getAllArticleByIdDemandeAchat(@PathVariable("idDemande") int idDemande){
+        return iArticleService.getAllArticleByIdDemandeAchat(idDemande) ;
+    }
     @GetMapping ("/AllArticle")
     @ResponseBody
     public List<Article> getAllArticle(){
@@ -196,7 +206,12 @@ public class DemandeAchatController {
     public Article  getArticleById(@PathVariable("id") int id){
         return   iArticleService.getArticleById(id);
     }
+    @PostMapping("/addArticleAndAssignToUniteAndNature/{idUnite}/{idNature}")
+    @ResponseBody
+    public Article addArticleAndAssignToUniteAndNature(@RequestBody Article article,@PathVariable("idUnite") int idUnite,@PathVariable("idNature") int idNature){
+        return iArticleService.addArticleAndAssignToUniteAndNature(article,idUnite,idNature);
 
+    }
 
     @DeleteMapping("/deleteArticle/{id}")
     private void deleteArticle(@PathVariable("id") int id)
@@ -209,6 +224,10 @@ public class DemandeAchatController {
     {
         return iArticleService.updateArticle(a);
 
+    }
+    @PostMapping("/AddassignArticleToDemandeAchat/{idDemande}")
+    public Article AddassignArticleToDemandeAchat(@RequestBody Article article, @PathVariable("idDemande") int idDemande){
+        return iArticleService.AddassignArticleToDemandeAchat(article,idDemande);
     }
     @PostMapping("/assignArticleToDemandeAchat/{idArticle}/{idDemande}")
     public void assignArticleToDemandeAchat(@PathVariable("idArticle") int idArticle, @PathVariable("idDemande")int idDemande) {
@@ -267,22 +286,26 @@ public class DemandeAchatController {
 
     @PostMapping("/addComment/{idArticle}")
     @ResponseBody
-    public void AddAffectCommentList(@RequestBody Comment comment, @PathVariable("idArticle") int idArticle
-        ,Principal principal ) throws IOException {
+    public Comment AddAffectCommentList(@RequestBody Comment comment, @PathVariable("idArticle") int idArticle
+            ,Principal principal ) throws IOException {
 
 
-           iCommentService.AddAffectCommentList(comment, idArticle ,principal);
+        return    iCommentService.AddAffectCommentList(comment, idArticle ,principal);
 
 
     }
-
-    @PutMapping("/updateComment/{idArticle}")
+    @GetMapping("/getComment/{id}")
     @ResponseBody
+    public Comment  getCommentById(@PathVariable("id") int id){
+        return   iCommentService.getCommentById(id);
+    }
 
-    public Comment updateComment(@RequestBody Comment comment, @PathVariable("idArticle") int idArticle
-    ,Principal principal)
+    @PutMapping("/updateComment")
+    @ResponseBody
+    public Comment updateComment(@RequestBody Comment comment
+            ,Principal principal)
     {
-        return iCommentService.updateComment(comment,idArticle,principal);
+        return iCommentService.updateComment(comment,principal);
 
     }
 
@@ -292,10 +315,8 @@ public class DemandeAchatController {
     { return iCommentService.getAllComments(); }
 
 
-    @DeleteMapping("/deleteComment")
-
-
-    public void deleteComment(Integer idComment)
+    @DeleteMapping("/deleteComment/{idComment}")
+    public void deleteComment(@PathVariable("idComment") Integer idComment)
     {
         iCommentService.deleteComment(idComment);
     }

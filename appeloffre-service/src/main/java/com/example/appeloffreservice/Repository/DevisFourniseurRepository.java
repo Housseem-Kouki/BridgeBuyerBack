@@ -13,4 +13,12 @@ public interface DevisFourniseurRepository extends JpaRepository<DevisFourniseur
     List<DevisFourniseur> findByIds(@Param("id1") int id1 , @Param("id2") int id2);
     DevisFourniseur findDevisFourniseursByIdDevisFourniseur(@Param(("id1"))int id1);
     List<DevisFourniseur> findDevisFourniseursByFourniseur (User user);
+
+    // @Query("SELECT q FROM AppelOffre q WHERE q.idAppelOffre = :idAppelOffre")
+    @Query("SELECT q FROM DevisFourniseur q JOIN q.appelOffre a WHERE a.idAppelOffre = :idAppelOffre")
+
+    List<DevisFourniseur> findDevisFourniseurByIdAppeloffre(@Param("idAppelOffre")int idAppeloffre);
+
+
+
 }

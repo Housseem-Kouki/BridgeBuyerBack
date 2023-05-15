@@ -1,5 +1,6 @@
 package com.example.commandeservice.Entities;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ public class Paiment implements Serializable {
     private int idPaiment ;
 
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "paiment")
+
     private Set<Commande> commandes;
 
 

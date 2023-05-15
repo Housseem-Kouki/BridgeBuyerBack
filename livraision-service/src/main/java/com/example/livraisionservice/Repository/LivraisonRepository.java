@@ -22,7 +22,7 @@ public interface LivraisonRepository extends JpaRepository<Livraison, Integer> {
     public List<Livraison> getLivraisonByFournisseur(Integer idUser);
 
     //Recherche
-    @Query(value = "select l from Livraison l where concat(l.idLivraision,l.quantiteDelivre,l.dateLivraison,l.archive) like %?1% ")
+    @Query(value = "select l from Livraison l where concat(l.idLivraison,l.quantiteDelivre,l.dateLivraison,l.archive) like %?1% ")
     List<Livraison> recherche(String keyword);
 
 

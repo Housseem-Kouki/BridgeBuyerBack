@@ -24,28 +24,28 @@ public class CommentService implements ICommentService{
     ReactCommentRepository reactCommentRepository ;
 
     @Override
-    public void AddAffectCommentList(Comment comment, int idArticle , Principal principal) throws IOException {
+    public Comment AddAffectCommentList(Comment comment, int idArticle , Principal principal) throws IOException {
 
         Article article =  articleRepository.findById(idArticle).orElse(null);
-        User user =  userRepository.findByEmail(principal.getName());
+        User user =  userRepository.findById(55).orElse(null);
         comment.setContent(BadWord.filterBadWords(comment.getContent()));
 
         comment.setArticle(article);
         comment.setUser(user);
 
-        commentRepository.save(comment);
+        return commentRepository.save(comment);
     }
 
     @Override
-    public Comment updateComment(Comment comment, int idArticle , Principal principal) {
-        Article article =  articleRepository.findById(idArticle).orElse(null);
-        User user =  userRepository.findByEmail(principal.getName());
+    public Comment updateComment(Comment comment, Principal principal) {
+
+        User user =  userRepository.findById(55).orElse(null);
 
 
-        comment.setArticle(article);
+
         comment.setUser(user);
 
-       return commentRepository.save(comment);
+        return commentRepository.save(comment);
     }
 
     @Override
@@ -91,12 +91,18 @@ public class CommentService implements ICommentService{
 
         return  nb ;
     }
+
+    @Override
+    public Comment getCommentById(int id) {
+        return commentRepository.findById(id).orElse(null );
+    }
+
     @Override
     public ResponseEntity<ReactComment> save(int idComment, ReactComment reactComment ,Principal principal) {
         String test="" ;
         Comment comment = commentRepository.findById(idComment).orElse(null) ;
 
-        User user =userRepository.findByEmail(principal.getName());//session
+        User user =userRepository.findById(55).orElse(null) ; //session
         ReactComment existingReactComment = reactCommentRepository.findByUserAndComments(user,comment);
         if (existingReactComment != null && !reactComment.getReact().equals(existingReactComment.getReact())) {
             existingReactComment.setReact(reactComment.getReact());
@@ -114,5 +120,6 @@ public class CommentService implements ICommentService{
 
         }
     }
+
 
 }

@@ -32,6 +32,6 @@ public class Comment implements Serializable {
     private Article article;
 
     @OneToMany(mappedBy = "comments", cascade = CascadeType.ALL)
-    @JsonIgnore
+
     private Set<ReactComment> reactComment;
 }

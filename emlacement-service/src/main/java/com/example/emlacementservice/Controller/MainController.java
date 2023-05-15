@@ -1,41 +1,51 @@
 package com.example.emlacementservice.Controller;
 
 
-import com.example.emlacementservice.Entities.*;
-import com.example.emlacementservice.Repository.EmplacementRepository;
-import com.example.emlacementservice.Repository.ReclamationRepository;
-import com.example.emlacementservice.Service.*;
-import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 import javax.websocket.server.PathParam;
-import java.security.Principal;
-import java.util.List;
+
+import com.example.emlacementservice.Entities.AdresseDepartement;
+import com.example.emlacementservice.Entities.AdresseExpedition;
+import com.example.emlacementservice.Entities.Departement;
+import com.example.emlacementservice.Entities.Emplacement;
+import com.example.emlacementservice.Service.IAdresseDepartementService;
+import com.example.emlacementservice.Service.IAdresseExpeditionService;
+import com.example.emlacementservice.Service.IDepartementService;
+import com.example.emlacementservice.Service.IEmplacementService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import com.example.emlacementservice.Repository.ComplaintsRepository;
+import com.example.emlacementservice.Service.ComplaintsService;
+import com.example.emlacementservice.Entities.Complaints;
+
+import lombok.AllArgsConstructor;
 
 @RestController
 @AllArgsConstructor
+@CrossOrigin(origins = "http://localhost:4200")
 public class MainController {
     IDepartementService iDepartementService;
-    IDeviseService iDeviseService;
     IEmplacementService iEmplacementService;
     IAdresseDepartementService iAdresseDepartementService;
     IAdresseExpeditionService iAdresseExpeditionService;
-    ReclamationService ReclamationService;
-    ReclamationRepository reclamationRepository;
+    ComplaintsService complaintsService;
+    ComplaintsRepository complaintsRepository;
 
     JavaMailSender emailSender;
-    private final EmplacementRepository emplacementRepository;
 
-    @PostMapping("/affectResponsableToUser/{idUserResponsble}/{idEmplacement}")
-    public Emplacement affectResponsableToUser(@PathVariable("idUserResponsble") int idUserResponsble ,
-                                               @PathVariable("idEmplacement") int idEmplacement) {
-        return iEmplacementService.affectResponsableToUser(idUserResponsble,idEmplacement);
-    }
 
     @GetMapping("/AllDepartements")
     @ResponseBody
@@ -43,10 +53,10 @@ public class MainController {
         return iDepartementService.getAllDepartements();
     }
 
-    @PostMapping("/addDepartement")
+    @PostMapping("/addDepartement/{idE}")
     @ResponseBody
-    public Departement addDepartement(@RequestBody Departement Departement) {
-        return iDepartementService.addDepartement(Departement);
+    public Departement addDepartement(@RequestBody Departement Departement,@PathVariable Integer idE) {
+        return iDepartementService.addDepartement(Departement,idE);
     }
 
     @GetMapping("/getDepartementById/{id}")
@@ -75,10 +85,10 @@ public class MainController {
         return iEmplacementService.getAllEmplacements();
     }
 
-    @PostMapping("/addEmplacement")
+    @PostMapping("/addEmplacement/{idA}")
     @ResponseBody
-    public Emplacement addEmplacement(@RequestBody Emplacement Emplacement) {
-        return iEmplacementService.addEmplacement(Emplacement);
+    public Emplacement addEmplacement(@RequestBody Emplacement Emplacement , @PathVariable int idA) {
+        return iEmplacementService.addEmplacement(Emplacement,idA);
     }
 
     @GetMapping("/getEmplacementById/{id}")
@@ -89,19 +99,18 @@ public class MainController {
 
 
     @DeleteMapping("/deleteEmplacement/{id}")
-    private void deleteEmplacement(@PathVariable("id") int id) {
+    private void deleteEmplacement(@PathVariable int id) {
         iEmplacementService.deleteEmplacement(id);
     }
 
-    @PutMapping("/updateEmplacement")
-    private Emplacement updateEmplacement(@RequestBody Emplacement Emplacement) {
-        iEmplacementService.updateEmplacement(Emplacement);
+    @PutMapping("/updateEmplacement/{id}")
+    private Emplacement updateEmplacement(@RequestBody Emplacement Emplacement,@PathVariable int id) {
+        iEmplacementService.updateEmplacement(Emplacement,id);
         return Emplacement;
     }
-    @PostMapping("affecterEmplacementToDepartement/{idD}")
-    public Emplacement affecterEmplacementToDepartement(@RequestBody Emplacement e ,  @PathVariable("idD")Integer idD){
-        return iEmplacementService.affecterEmplacementToDepartement(e,idD);
-    }
+
+
+
 
     /**************************************************************************************************/
     @GetMapping("/AllAdresseExpeditions")
@@ -134,12 +143,6 @@ public class MainController {
         return AdresseExpedition;
     }
 
-    @PostMapping("/affecterAdresseToEmpl/{ide}")
-    public AdresseExpedition affecterAdresseExpeditionToEmplacement(@RequestBody AdresseExpedition ad, @PathVariable Integer ide) {
-        iAdresseExpeditionService.affecterShippingAdresseToEmplac(ad, ide);
-        return ad ;
-    }
-
     @GetMapping("/AllAdresseDepartements")
     @ResponseBody
     public List<AdresseDepartement> getAllAllAdresseDepartements() {
@@ -160,7 +163,7 @@ public class MainController {
 
 
     @DeleteMapping("/deleteAdresseDepartement/{id}")
-    private void deleteAdresseDepartement(@PathVariable("id") int id) {
+    private void deletegetaddAdresseDepartement(@PathVariable("id") int id) {
         iAdresseDepartementService.deleteAdresseDepartement(id);
     }
 
@@ -169,105 +172,94 @@ public class MainController {
         iAdresseDepartementService.updateAdresseDepartement(AdresseDepartement);
         return AdresseDepartement;
     }
-
     //******************
     @GetMapping("/getDepartementParNom/{nomDepartement}")
     Departement getByNomDepartement(@PathVariable String nomDepartement) {
         return iDepartementService.getByNomDepartement(nomDepartement);
     }
-
-    @PostMapping("/affecterAdresseDepartement/{idD}")
-    public AdresseDepartement affecterAdresseDepartementToDepartement(@RequestBody AdresseDepartement ad, @PathVariable Integer idD) {
-        return iAdresseDepartementService.affecterAdresseDepartementToDepartement(ad, idD);
+    @PutMapping("/affecterDeparToAdrDepar/{idD}/{idAD}")
+    public void affecterAdresseDepartementToDepartement(@PathVariable Integer idD,@PathVariable Integer idAD) {
+        iDepartementService.affecterAdresseDepartementToDepartement(idD, idAD);
     }
-
     @GetMapping("getDepartByNomDepart/{emplacementDepartement}")
     public Departement getDepartByNomDepart(@PathVariable String emplacementDepartement) {
         return iDepartementService.getByNomDepartement(emplacementDepartement);
 
     }
 
-    @PutMapping("/update")
-    public Reclamation updateReclamation(@RequestBody Reclamation reclamation) {
-        return ReclamationService.updateReclamation(reclamation);
+    @PutMapping("/updateComplaint/{id}")
+    public void updateComplaints(@RequestBody Complaints complaints,@PathVariable Long id ) {
+        complaintsService.updateComplaints(complaints , id);
     }
 
 
-    @DeleteMapping("/delete/{id}")
-    public void deleteReclamation(@PathVariable Long id) {
 
-        ReclamationService.deleteReclamation(id);
+    @DeleteMapping("/deleteComplaint/{id}")
+    public void deleteComplaints(@PathVariable Long id) {
+
+        complaintsService.deleteComplaints(id);
 
     }
-
-    @GetMapping("/all")
-    public List<Reclamation> getAll() {
-        return ReclamationService.getAll();
+    @GetMapping("/getallComplaint")
+    public List<Complaints> getAll(){
+        return complaintsService.getAll();
     }
 
-    @GetMapping("/get/{id}")
-    public Reclamation findById(@PathVariable Long id) {
-        return ReclamationService.findById(id);
+    @GetMapping("/getComplaint/{id}")
+    public Complaints findById(@PathVariable Long id) {
+        return complaintsService.findById(id);
     }
+    @GetMapping("/nbreComplaint")
+    public int NmbreComplaints() {
+        return complaintsService.NmbreComplaints()	;}
+    @PostMapping("/addComplaint/{id}")
+    public	String AddComplaints(@RequestBody Complaints com,@PathVariable Integer id){
+        List<String> dic = complaintsRepository.Dictionnaire();
+        for (int i = 1; i <= dic.size(); i++) {
+            if (com.getTopic().contains(dic.get(i - 1))) {
+                break;
+            } else {
+                if (i == dic.size()) {
+                    complaintsService.AddComplaints(id, com);
+                    SimpleMailMessage message = new SimpleMailMessage();
 
-    @GetMapping("/nbre")
-    public int NmbreReclamation() {
-        return ReclamationService.NmbreReclamation();
-    }
+                    message.setTo(com.getUser().getEmail());
+                    message.setSubject("Your complaint has been successfully added");
+                    message.setText("Hello, Your complaint has been successfully added. Thank you for your feedback!");
 
-    @PostMapping("/add")
-    public String AddReclamation(@RequestBody Reclamation com , Principal principal) {
-		/*List<String> dic = reclamationRepository.Dictionnaire();
-		for (int i = 1; i <= dic.size(); i++) {
-			if (com.getTopic().contains(dic.get(i - 1))) {
-				break;
-			} else {
-				if (i == dic.size()) { */
-        ReclamationService.AddReclamation( com , principal);
-        SimpleMailMessage message = new SimpleMailMessage();
+                    // Send Message!
+                    this.emailSender.send(message);
 
-        message.setTo(com.getUser().getEmail());
-        message.setSubject("Your complaint has been successfully added");
-        message.setText("Hello, Your complaint has been successfully added. Thank you for your feedback!");
+                    return "Email Sent by me!";
 
-        // Send Message!
-        this.emailSender.send(message);
+                }
+            }
 
-        return "Email Sent by me!";
+        }
+        return "can not add complaints which contains a forbidden word";
 
-		/*		}
-			}
-
-		}
-		return "can not add Reclamation which contains a forbidden word";*/
 
     }
 
     @GetMapping("/affecter/{idR}/{idU}")
-    public Reclamation affecterUserAReclamation(@PathVariable Long idR, @PathVariable Integer idU) {
-        return ReclamationService.affecterUserAReclamation(idR, idU);
+    public Complaints affecterUserAComplaints(@PathVariable Long idR,@PathVariable Integer idU) {
+        return complaintsService.affecterUserAComplaints(idR, idU);
     }
-
-   @GetMapping("/getAllEmplacementTrie")
-    public Page<Emplacement> findAllEmplacementTrie(Pageable pageable) {
-        return iEmplacementService.findAllEmplacementTrié(pageable);
+    @GetMapping("/getAllEmplacementTrie")
+    public List<Emplacement> findAllEmplacementTrie(){
+        return iEmplacementService.findAllEmplacementTrié();
     }
-
-
-
     @GetMapping("/FiltreAdressExpedition/{pays}/{cite}")
-    public List<AdresseExpedition> filterByPaysAndCite(@PathVariable String pays, @PathVariable String cite) {
-        return iAdresseExpeditionService.filterByPaysAndCite(pays,cite);
+    public List<AdresseExpedition> filterByPaysAndCite(@PathVariable String pays,@PathVariable String cite){
+        return iAdresseExpeditionService.filterByPaysAndCite(pays, cite);
     }
-
     @GetMapping("/ChercherParNomDepartement")
-    public List<Departement> ChercherParNomDepartementContainingIgnoreCase(@PathParam("nomDepartement") String nomDepartement) {
+    public List<Departement> ChercherParNomDepartementContainingIgnoreCase(@PathParam("nomDepartement") String nomDepartement){
         return iDepartementService.ChercherParNomDepartementContainingIgnoreCase(nomDepartement);
     }
-
-    @PutMapping("/archiverReclamation/{id}")
-    public void archiverReclamation(@PathVariable Long id) {
-        ReclamationService.archiverReclamation(id);
+    @PutMapping("/archiverComplaint/{id}")
+    public void archiverComplaint(@PathVariable Long id) {
+        complaintsService.archiverComplaint(id);
     }
 
     @DeleteMapping("/deleteEmplacementsNonAffectes")
@@ -275,68 +267,6 @@ public class MainController {
         iEmplacementService.supprimerEmplacementsNonAffectes();
     }
 
-    /********************************/
-
-    @GetMapping("/AllDevises")
-    @ResponseBody
-    public List<Devise> getAllAllDevises() {
-        return iDeviseService.getAllDevises();
-    }
-
-    @PostMapping("/addDevise")
-    @ResponseBody
-    public Devise addDevise(@RequestBody Devise Devise) {
-        return iDeviseService.addDevise(Devise);
-    }
-
-    @GetMapping("/getDeviseById/{id}")
-    @ResponseBody
-    public Devise getaddDeviseById(@PathVariable("id") int id) {
-        return iDeviseService.getDeviseById(id);
-    }
 
 
-    @DeleteMapping("/deleteDevise/{id}")
-    public void deletegetaddDevise(@PathVariable("id") int id) {
-        iDeviseService.deleteDevise(id);
-    }
-
-    @PutMapping("/updateDevise")
-    public Devise updateDevise(@RequestBody Devise Devise) {
-
-        iDeviseService.updateDevise(Devise);
-        return Devise;
-    }
-
-    @PutMapping("/activerDevise/{nomDev}")
-    public void activerdevise(@PathVariable("nomDev") String nom) {
-        iDeviseService.ActiverDevise(nom);
-    }
-
-    @PutMapping("/desactiverDevise/{nomDev}")
-    public void desactiverdevise(@PathVariable("nomDev") String nom) {
-        iDeviseService.DesactiverDevise(nom);
-    }
-
-    @PostMapping("/affecterdevise/{idE}")
-    public Devise affecterDeviseToEmp(@RequestBody Devise d, @PathVariable Integer idE) {
-       return iDeviseService.affecterDeviseToEmp(d, idE);
-
-
-    }
-   @GetMapping("/search")
-    public ResponseEntity<List<Emplacement>> search(@RequestParam(required = false) String key1,
-                                                    @RequestParam(required = false) String key2,
-                                                    @RequestParam(required = false) String key3) {
-        List<Emplacement> Emplacements = iEmplacementService.findByCriteria(key1,key2,key3);
-        return ResponseEntity.ok(Emplacements);
-    }
- /* @GetMapping("/search")
-  public List<Emplacement> search(@RequestParam(required = false) String key) {
-      return iEmplacementService.searchEmplacement(key);
-  }*/
 }
-
-
-
-

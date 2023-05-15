@@ -26,11 +26,11 @@ public class BonRetourServiceImp implements IBonRetourService{
         return bonRetourRepository.save(b);
     }
     @Override
-    public BonRetour affecterFactureAvoirToBonRetour(int idFactureAvoir, int idBonRetour){
+    public FactureAvoir affecterFactureAvoirToBonRetour(FactureAvoir f, int idBonRetour){
         BonRetour bonRetour = bonRetourRepository.findById(idBonRetour).orElse(null);
-        FactureAvoir factureAvoir = factureAvoirRepository.findById(idFactureAvoir).orElse(null);
-        bonRetour.setFactureAvoir(factureAvoir);
-        return bonRetourRepository.save(bonRetour);
+        bonRetour.setFactureAvoir(f);
+        f.setIdFactureAvoir(bonRetour.getIdBonRetour());
+        return factureAvoirRepository.save(f);
     }
     @Override
     public BonRetour getBonRetourById(int id) {
@@ -68,4 +68,6 @@ public class BonRetourServiceImp implements IBonRetourService{
             return bonRetourRepository.recherche(key);
         }
     }
+
+
 }

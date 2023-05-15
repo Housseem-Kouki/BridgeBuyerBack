@@ -68,4 +68,10 @@ RoleRepository roleRepository;
         return privilegeRepository.save(privilege);
     }
 
+    @Override
+    public List<Role> ListRoleByIdPrivilege(int idPrivilege) {
+
+        return roleRepository.findRolesByPrivilegeId(idPrivilege);
+    }
+
 }

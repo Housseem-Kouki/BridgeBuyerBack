@@ -28,7 +28,7 @@ public class Emplacement implements Serializable {
     private Set<User> users;
 
     @ManyToOne
-
+    @JsonIgnore
     private User responsableEmplacement;
 
     @ManyToOne

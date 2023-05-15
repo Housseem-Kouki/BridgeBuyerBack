@@ -18,7 +18,7 @@ import java.util.Date;
 public class Livraison implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idLivraision ;
+    private int idLivraison ;
     private int quantiteDelivre;
     // private int quantiteRetour;
     @Temporal(TemporalType.DATE)
@@ -41,7 +41,7 @@ public class Livraison implements Serializable {
     @Override
     public String toString() {
         return "Livraison{" +
-                "idLivraision=" + idLivraision +
+                "idLivraison=" + idLivraison +
                 ", quantiteDelivre=" + quantiteDelivre +
                 ", dateLivraison=" + dateLivraison +
                 ", archive=" + archive +
@@ -51,6 +51,7 @@ public class Livraison implements Serializable {
     }
 
     @JsonIgnore
-    @OneToOne(mappedBy = "livraision" , cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "livraison" , cascade = CascadeType.ALL)
     private BonReception bonReception;
+
 }
